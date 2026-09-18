@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Landlord Survey — Interactive Analysis</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff;--fg:#1B2A4A;--muted:#64748B;--light:#94A3B8;--border:#E2E8F0;--sf:#F8FAFC;--sf2:#F1F5F9;--teal:#0EA5A0;--orange:#E8753A;--us:#3B82F6;--ca:#EF4444;--uae:#10B981;--navy:#1B2A4A}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--fg);font-size:14px;line-height:1.5}
+.hdr{background:linear-gradient(135deg,#1B2A4A,#0F766E);color:#fff;padding:1.5rem 1.5rem 1rem}
+.hdr h1{font-size:1.2rem;font-weight:700;color:#5EEAD4}
+.hdr p{font-size:.78rem;opacity:.7;margin-top:.25rem}
+.hdr .meta{font-size:.68rem;opacity:.5;margin-top:.5rem}
+
+/* FILTERS */
+.filters{background:var(--sf);border-bottom:1px solid var(--border);padding:.75rem 1.5rem;display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;position:sticky;top:0;z-index:50}
+.filters label{font-size:.7rem;font-weight:600;color:var(--muted);display:flex;align-items:center;gap:.3rem}
+.filters select{font-family:inherit;font-size:.75rem;padding:.3rem .5rem;border:1px solid var(--border);border-radius:4px;background:#fff;color:var(--fg);cursor:pointer}
+.filter-count{font-size:.72rem;color:var(--teal);font-weight:600;margin-left:auto}
+
+/* TABS */
+.tabs{display:flex;border-bottom:1px solid var(--border);background:var(--sf);padding:0 1.5rem}
+.tab{padding:.6rem 1rem;font-size:.75rem;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:.2s}
+.tab:hover,.tab.active{color:var(--teal);border-bottom-color:var(--teal)}
+
+.content{padding:1.5rem;max-width:1000px;margin:0 auto}
+.pane{display:none}.pane.active{display:block}
+
+/* STATS ROW */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.5rem;margin-bottom:1.25rem}
+.st{background:var(--sf);border:1px solid var(--border);padding:.75rem;border-radius:6px;text-align:center}
+.st .n{font-size:1.5rem;font-weight:800;letter-spacing:-.02em}
+.st .n.tl{color:var(--teal)}.st .n.or{color:var(--orange)}
+.st .l{font-size:.65rem;color:var(--muted);margin-top:.15rem}
+
+/* HEATMAP TABLE */
+.ht{width:100%;border-collapse:separate;border-spacing:2px;margin:.5rem 0 1rem;font-size:.75rem}
+.ht caption{text-align:left;font-size:.8rem;font-weight:600;color:var(--fg);padding-bottom:.3rem;caption-side:top}
+.ht th{padding:.35rem .4rem;font-weight:600;text-align:center;color:var(--muted);font-size:.65rem;white-space:nowrap}
+.ht th:first-child{text-align:left;min-width:130px}
+.ht td{padding:.35rem .4rem;text-align:center;border-radius:3px;font-weight:600;font-size:.73rem}
+.ht td:first-child{text-align:left;font-weight:500;color:var(--fg);background:transparent!important}
+.ht tr.total td{font-weight:700;border-top:2px solid var(--border)}
+
+/* DYNAMIC HEAT COLORS VIA JS */
+.heat-green{color:#166534}.heat-red{color:#fff}.heat-blue{color:#0C4A6E}
+
+/* INSIGHT BOX */
+.insight{background:var(--sf);border-left:3px solid var(--teal);padding:.7rem .9rem;margin:.5rem 0 1rem;font-size:.78rem;color:var(--muted);border-radius:0 5px 5px 0;line-height:1.55}
+.insight strong{color:var(--fg)}
+
+/* CLAUDE TAB */
+.claude-setup{background:var(--sf);border:1px solid var(--border);border-radius:6px;padding:1rem;margin-bottom:1rem}
+.claude-setup label{font-size:.75rem;font-weight:500;display:block;margin-bottom:.3rem}
+.claude-setup input{width:100%;font-family:inherit;font-size:.78rem;padding:.4rem .6rem;border:1px solid var(--border);border-radius:4px;margin-bottom:.5rem}
+.chat-box{border:1px solid var(--border);border-radius:6px;height:400px;display:flex;flex-direction:column;overflow:hidden}
+.chat-messages{flex:1;overflow-y:auto;padding:.75rem;font-size:.8rem}
+.chat-messages .msg{margin-bottom:.75rem;line-height:1.5}
+.chat-messages .msg.user{color:var(--teal);font-weight:500}
+.chat-messages .msg.assistant{color:var(--fg)}
+.chat-messages .msg.assistant pre{background:var(--sf);padding:.5rem;border-radius:4px;overflow-x:auto;font-size:.72rem;margin:.3rem 0;white-space:pre-wrap}
+.chat-messages .msg.system{color:var(--light);font-size:.72rem;font-style:italic}
+.chat-input{display:flex;border-top:1px solid var(--border);padding:.5rem}
+.chat-input input{flex:1;border:1px solid var(--border);border-radius:4px;padding:.4rem .6rem;font-family:inherit;font-size:.8rem}
+.chat-input button{margin-left:.4rem;padding:.4rem .8rem;background:var(--teal);color:#fff;border:none;border-radius:4px;font-family:inherit;font-size:.78rem;font-weight:600;cursor:pointer}
+.chat-input button:disabled{opacity:.5;cursor:not-allowed}
+
+.loading{text-align:center;padding:3rem;color:var(--muted);font-size:.85rem}
+
+@media(max-width:700px){
+  .filters{flex-direction:column;align-items:stretch}
+  .filter-count{margin-left:0}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .tabs{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .tab{white-space:nowrap;font-size:.7rem;padding:.5rem .6rem}
+}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <h1>Landlord Card Acceptance Survey</h1>
+  <p>Interactive cross-tabulation dashboard — filter, explore, and ask Claude for deeper analysis</p>
+  <div class="meta">n=240 · US 100, Canada 70, UAE 70 · September 2026 · Pollfish</div>
+</header>
+
+<div class="filters" id="filters">
+  <label>Country <select id="fCountry"><option value="">All</option><option>United States</option><option>Canada</option><option>UAE</option></select></label>
+  <label>Portfolio <select id="fPortfolio"><option value="">All</option><option value="1">1 unit</option><option value="2 - 4">2–4</option><option value="5 - 9">5–9</option><option value="10 - 19">10–19</option><option value="20 - 49">20–49</option></select></label>
+  <label>Card status <select id="fCard"><option value="">All</option><option value="accepts">Accepts cards</option><option value="never">Never accepted</option><option value="former">Former acceptor</option></select></label>
+  <label>Management <select id="fMgmt"><option value="">All</option><option value="self">Self-managed</option><option value="pro">Professionally managed</option></select></label>
+  <span class="filter-count" id="filterCount">Loading...</span>
+</div>
+
+<nav class="tabs">
+  <div class="tab active" data-pane="overview">Overview</div>
+  <div class="tab" data-pane="payment">Payment Mix</div>
+  <div class="tab" data-pane="pain">Pain Points</div>
+  <div class="tab" data-pane="adoption">Adoption</div>
+  <div class="tab" data-pane="claude">Ask Claude</div>
+</nav>
+
+<div class="content">
+  <div id="loadingMsg" class="loading">Loading data from Supabase...</div>
+
+  <!-- OVERVIEW -->
+  <div class="pane active" id="pane-overview">
+    <div class="stats" id="overviewStats"></div>
+    <table class="ht" id="tblCardByCountry"></table>
+    <table class="ht" id="tblCardByPortfolio"></table>
+    <table class="ht" id="tblCardUsage"></table>
+  </div>
+
+  <!-- PAYMENT MIX -->
+  <div class="pane" id="pane-payment">
+    <table class="ht" id="tblPayMix"></table>
+    <table class="ht" id="tblPayDecision"></table>
+    <table class="ht" id="tblTenantDemand"></table>
+  </div>
+
+  <!-- PAIN POINTS -->
+  <div class="pane" id="pane-pain">
+    <table class="ht" id="tblCollectionPain"></table>
+    <table class="ht" id="tblOpPain"></table>
+    <table class="ht" id="tblBarriers"></table>
+  </div>
+
+  <!-- ADOPTION -->
+  <div class="pane" id="pane-adoption">
+    <table class="ht" id="tblFeeTolerance"></table>
+    <table class="ht" id="tblActivation"></table>
+    <table class="ht" id="tblFeatures"></table>
+    <table class="ht" id="tblTrust"></table>
+    <table class="ht" id="tblAncillary"></table>
+  </div>
+
+  <!-- CLAUDE -->
+  <div class="pane" id="pane-claude">
+    <div class="claude-setup">
+      <label>Anthropic API Key (stays in your browser, never sent to our server)</label>
+      <input type="password" id="apiKey" placeholder="sk-ant-...">
+      <div style="font-size:.68rem;color:var(--light)">The key is used only for direct browser→Anthropic API calls. Filtered survey data is included as context so Claude can analyze it.</div>
+    </div>
+    <div class="chat-box">
+      <div class="chat-messages" id="chatMessages">
+        <div class="msg system">Ask questions about the filtered survey data. Claude receives the current filtered dataset as context. Try: "Compare fee sensitivity between US and UAE landlords" or "What's the profile of non-acceptors?"</div>
+      </div>
+      <div class="chat-input">
+        <input type="text" id="chatInput" placeholder="Ask about the survey data..." onkeydown="if(event.key==='Enter')sendChat()">
+        <button onclick="sendChat()" id="chatSend">Send</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUPA_URL = 'https://bydkyihvfippsvxgyrvx.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ5ZGt5aWh2ZmlwcHN2eGd5cnZ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3MjY3MDUsImV4cCI6MjEwNTMwMjcwNX0.WJyeXi26hqbwst5bv11Dm_r3u0AVD_qdN5iIMOVRcFE';
+
+let ALL_DATA = [];
+let filtered = [];
+
+// ── DATA LOADING ──
+async function loadData() {
+  try {
+    const r = await fetch(`${SUPA_URL}/rest/v1/landlord_survey?select=*&order=row_id`, {
+      headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}` }
+    });
+    ALL_DATA = await r.json();
+    document.getElementById('loadingMsg').style.display = 'none';
+    applyFilters();
+  } catch (e) {
+    document.getElementById('loadingMsg').textContent = 'Error loading data: ' + e.message;
+  }
+}
+
+// ── FILTERS ──
+function applyFilters() {
+  const country = document.getElementById('fCountry').value;
+  const portfolio = document.getElementById('fPortfolio').value;
+  const card = document.getElementById('fCard').value;
+  const mgmt = document.getElementById('fMgmt').value;
+
+  filtered = ALL_DATA.filter(r => {
+    if (country && r.country !== country) return false;
+    if (portfolio && r.portfolio_size !== portfolio) return false;
+    if (card === 'accepts' && !r.card_status?.includes('accept')) return false;
+    if (card === 'never' && r.card_status !== 'I have never accepted cards') return false;
+    if (card === 'former' && !r.card_status?.includes('used to')) return false;
+    if (mgmt === 'self' && !r.management_type?.includes('myself')) return false;
+    if (mgmt === 'pro' && r.management_type?.includes('myself')) return false;
+    return true;
+  });
+
+  document.getElementById('filterCount').textContent = `${filtered.length} of ${ALL_DATA.length} respondents`;
+  renderAll();
+}
+
+document.querySelectorAll('.filters select').forEach(s => s.addEventListener('change', applyFilters));
+
+// ── TABS ──
+document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => {
+  document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+  document.querySelectorAll('.pane').forEach(x => x.classList.remove('active'));
+  t.classList.add('active');
+  document.getElementById('pane-' + t.dataset.pane).classList.add('active');
+}));
+
+// ── HELPERS ──
+function pct(arr, fn) {
+  if (!arr.length) return 0;
+  return Math.round(arr.filter(fn).length / arr.length * 1000) / 10;
+}
+function avg(arr, field) {
+  const vals = arr.map(r => parseFloat(r[field])).filter(v => !isNaN(v) && v !== null);
+  if (!vals.length) return null;
+  return Math.round(vals.reduce((a, b) => a + b, 0) / vals.length * 10) / 10;
+}
+function byCountry(data) {
+  return {
+    'US': data.filter(r => r.country === 'United States'),
+    'Canada': data.filter(r => r.country === 'Canada'),
+    'UAE': data.filter(r => r.country === 'UAE'),
+  };
+}
+function heatBg(val, max, scheme = 'green') {
+  if (val === null || val === undefined || isNaN(val)) return '';
+  const ratio = Math.min(val / max, 1);
+  if (scheme === 'green') {
+    const g = Math.round(180 + 75 * (1 - ratio));
+    const r = Math.round(240 - 180 * ratio);
+    return `background:rgb(${r},${g},${Math.round(r * 0.7)});color:${ratio > 0.5 ? '#fff' : '#166534'}`;
+  }
+  if (scheme === 'red') {
+    const r2 = Math.round(254 - 50 * ratio);
+    const g = Math.round(240 - 170 * ratio);
+    return `background:rgb(${r2},${g},${Math.round(g * 0.85)});color:${ratio > 0.5 ? '#fff' : '#991B1B'}`;
+  }
+  const b = Math.round(200 + 55 * ratio);
+  const g = Math.round(230 - 120 * ratio);
+  return `background:rgb(${Math.round(g * 0.8)},${g},${b});color:${ratio > 0.5 ? '#fff' : '#0C4A6E'}`;
+}
+
+function makeTable(id, caption, headers, rows, scheme = 'blue', maxCol = null) {
+  const tbl = document.getElementById(id);
+  if (!tbl) return;
+  // Find max for heat
+  let mx = 0;
+  if (!maxCol) {
+    rows.forEach(r => r.slice(1).forEach(v => { const n = parseFloat(v); if (!isNaN(n) && n > mx) mx = n; }));
+  } else { mx = maxCol; }
+
+  let html = `<caption>${caption} <span style="font-weight:400;font-size:.65rem;color:var(--light)">(n=${filtered.length})</span></caption>`;
+  html += '<tr>' + headers.map((h, i) => `<th>${h}</th>`).join('') + '</tr>';
+  rows.forEach((r, ri) => {
+    const isTotal = r[0]?.includes('Overall') || r[0]?.includes('Total');
+    html += `<tr${isTotal ? ' class="total"' : ''}>`;
+    r.forEach((cell, ci) => {
+      if (ci === 0) { html += `<td>${cell}</td>`; }
+      else {
+        const n = parseFloat(cell);
+        const style = !isNaN(n) && n > 0 ? heatBg(n, mx, scheme) : '';
+        const display = cell === null || cell === '' || cell === 'NaN' ? '—' : (typeof cell === 'number' ? cell.toFixed(1) + '%' : cell);
+        html += `<td style="${style}">${display}</td>`;
+      }
+    });
+    html += '</tr>';
+  });
+  tbl.innerHTML = html;
+}
+
+function acceptsCards(r) {
+  return r.card_status && r.card_status.includes('accept') && !r.card_status.includes('never') && !r.card_status.includes('dont') && !r.card_status.includes("don't");
+}
+
+// ── RENDER ALL ──
+function renderAll() {
+  renderOverview();
+  renderPayment();
+  renderPain();
+  renderAdoption();
+}
+
+// ── OVERVIEW ──
+function renderOverview() {
+  const d = filtered;
+  const accCards = pct(d, acceptsCards);
+  const selfMgd = pct(d, r => r.management_type?.includes('myself'));
+  const small = pct(d, r => r.portfolio_size === '1' || r.portfolio_size === '2 - 4');
+  const avgDebit = avg(d, 'pct_debit');
+  const avgCredit = avg(d, 'pct_credit');
+
+  document.getElementById('overviewStats').innerHTML = `
+    <div class="st"><div class="n">${d.length}</div><div class="l">respondents (filtered)</div></div>
+    <div class="st"><div class="n tl">${accCards}%</div><div class="l">accept cards</div></div>
+    <div class="st"><div class="n">${selfMgd}%</div><div class="l">self-managed</div></div>
+    <div class="st"><div class="n">${small}%</div><div class="l">fewer than 5 units</div></div>
+    <div class="st"><div class="n or">${avgDebit ?? '—'}%</div><div class="l">avg rent via debit</div></div>
+    <div class="st"><div class="n or">${avgCredit ?? '—'}%</div><div class="l">avg rent via credit</div></div>
+  `;
+
+  // Card status by country
+  const bc = byCountry(d);
+  const statuses = ['I currently accept both credit and debit cards','I currently accept debit cards only','I currently accept credit cards only',"I dont accept cards now, but I used to",'I have never accepted cards'];
+  const shortStatus = ['Both cards','Debit only','Credit only','Former','Never accepted'];
+  const rows = Object.entries(bc).filter(([k,v]) => v.length > 0).map(([country, sub]) => {
+    return [country + ` (${sub.length})`, ...statuses.map(s => pct(sub, r => r.card_status === s))];
+  });
+  if (rows.length > 1) {
+    rows.push(['Overall (' + d.length + ')', ...statuses.map(s => pct(d, r => r.card_status === s))]);
+  }
+  makeTable('tblCardByCountry', 'Card acceptance status × Country', ['', ...shortStatus], rows, 'green', 70);
+
+  // Card by portfolio
+  const sizes = ['1','2 - 4','5 - 9','10 - 19','20 - 49'].filter(s => d.some(r => r.portfolio_size === s));
+  const pRows = sizes.map(s => {
+    const sub = d.filter(r => r.portfolio_size === s);
+    return [s + ` (${sub.length})`, pct(sub, acceptsCards), pct(sub, r => !acceptsCards(r))];
+  });
+  makeTable('tblCardByPortfolio', 'Card acceptance × Portfolio size', ['','Accepts','Does not'], pRows, 'green', 100);
+
+  // Card usage among acceptors
+  const acc = d.filter(acceptsCards);
+  if (acc.length > 0) {
+    const usages = ['Under 25%','25 - 50%','50 - 75%','Most or all','None currently'];
+    const uRows = Object.entries(byCountry(acc)).filter(([k,v]) => v.length > 0).map(([c, sub]) => {
+      return [c, ...usages.map(u => pct(sub, r => r.card_usage_share === u))];
+    });
+    makeTable('tblCardUsage', 'Tenant card usage share (among acceptors)', ['', ...usages], uRows, 'blue', 60);
+  }
+}
+
+// ── PAYMENT MIX ──
+function renderPayment() {
+  const d = filtered;
+  const bc = byCountry(d);
+  const methods = [
+    ['Cash','pct_cash'],['Check','pct_check'],['Bank/ACH','pct_bank_ach'],
+    ['Payment apps','pct_payment_app'],['Interac','pct_interac'],['E-wallets','pct_ewallet'],
+    ['Debit card','pct_debit'],['Credit card','pct_credit'],['Auto debit','pct_auto_debit'],
+    ['Gov. subsidies','pct_gov_subsidy']
+  ];
+  const countries = Object.entries(bc).filter(([k,v]) => v.length > 0);
+  const rows = methods.map(([label, field]) => {
+    return [label, ...countries.map(([c, sub]) => avg(sub, field)), avg(d, field)];
+  });
+  makeTable('tblPayMix', 'Average % of rent by payment method × Country',
+    ['', ...countries.map(([c]) => c), 'Overall'], rows, 'blue', 40);
+
+  // Payment decision
+  const decisions = [...new Set(d.map(r => r.payment_decision).filter(Boolean))];
+  const dRows = decisions.map(dec => {
+    return [dec.substring(0, 50), ...countries.map(([c, sub]) => pct(sub, r => r.payment_decision === dec)), pct(d, r => r.payment_decision === dec)];
+  }).sort((a, b) => parseFloat(b[b.length-1]) - parseFloat(a[a.length-1]));
+  makeTable('tblPayDecision', 'How payment methods were chosen × Country',
+    ['', ...countries.map(([c]) => c), 'Overall'], dRows, 'blue', 40);
+
+  // Tenant demand
+  const demandFields = [['Debit card','demand_debit'],['Credit card','demand_credit'],['Payment app','demand_app'],['No request','demand_none']];
+  const tdRows = demandFields.map(([label, field]) => {
+    return [label, ...countries.map(([c, sub]) => pct(sub, r => r[field] === true || r[field] === 'true')),
+      pct(d, r => r[field] === true || r[field] === 'true')];
+  });
+  makeTable('tblTenantDemand', 'Tenant requests for unsupported methods (last 12 mo) × Country',
+    ['', ...countries.map(([c]) => c), 'Overall'], tdRows, 'green', 50);
+}
+
+// ── PAIN POINTS ──
+function renderPain() {
+  const d = filtered;
+  const bc = byCountry(d);
+  const countries = Object.entries(bc).filter(([k,v]) => v.length > 0);
+  const moderate = ['A moderate problem','A major problem','A serious ongoing problem'];
+  const isMod = r => f => moderate.includes(r[f]);
+
+  const painFields = [['Late payments','pain_late'],['Chasing tenants','pain_chasing'],['Partial payments','pain_partial'],
+    ['Bounced payments','pain_bounced'],['Disputes','pain_disputes'],['Payment visibility','pain_visibility'],['Transfer limits','pain_transfer_limits']];
+
+  const pRows = painFields.map(([label, field]) => {
+    return [label, ...countries.map(([c, sub]) => pct(sub, r => moderate.includes(r[field]))),
+      pct(d, r => moderate.includes(r[field]))];
+  });
+  makeTable('tblCollectionPain', 'Collection pain (% moderate+) × Country',
+    ['', ...countries.map(([c]) => c), 'Overall'], pRows, 'red', 70);
+
+  const opFields = [['Repair/damage costs','opain_repair_costs'],['Collection fees','opain_collection_fees'],
+    ['Manual tracking','opain_manual_tracking'],['Vacancy costs','opain_vacancy'],
+    ['First month + deposit','opain_first_deposit'],['Return deposits','opain_return_deposit'],['Cash safety','opain_cash_safety']];
+
+  const oRows = opFields.map(([label, field]) => {
+    return [label, ...countries.map(([c, sub]) => pct(sub, r => moderate.includes(r[field]))),
+      pct(d, r => moderate.includes(r[field]))];
+  });
+  makeTable('tblOpPain', 'Operational pain (% moderate+) × Country',
+    ['', ...countries.map(([c]) => c), 'Overall'], oRows, 'red', 65);
+
+  // Barriers (only for never-accepted)
+  const never = d.filter(r => r.card_status === 'I have never accepted cards');
+  if (never.length > 0) {
+    const bFields = [['Methods work fine','barrier_methods_fine'],['Absorb cost','barrier_absorb_cost'],['No credit','barrier_no_credit'],
+      ['Fees high','barrier_fees_high'],['Chargeback risk','barrier_chargeback'],['No demand','barrier_no_demand'],
+      ['Setup complicated','barrier_setup_complicated'],['No support','barrier_no_support'],['Tax concerns','barrier_tax_concerns']];
+    const bCountries = Object.entries(byCountry(never)).filter(([k,v]) => v.length > 0);
+    const bRows = bFields.map(([label, field]) => {
+      return [label, ...bCountries.map(([c, sub]) => pct(sub, r => r[field] === true || r[field] === 'true')),
+        pct(never, r => r[field] === true || r[field] === 'true')];
+    }).sort((a, b) => parseFloat(b[b.length-1]) - parseFloat(a[a.length-1]));
+    makeTable('tblBarriers', `Barriers to card acceptance (never-accepted, n=${never.length}) × Country`,
+      ['', ...bCountries.map(([c,s]) => c + ` (${s.length})`), `Overall (${never.length})`], bRows, 'red', 80);
+  } else {
+    document.getElementById('tblBarriers').innerHTML = '<caption>Barriers — no never-accepted landlords in current filter</caption>';
+  }
+}
+
+// ── ADOPTION ──
+function renderAdoption() {
+  const d = filtered;
+  const bc = byCountry(d);
+  const countries = Object.entries(bc).filter(([k,v]) => v.length > 0);
+
+  // Fee tolerance
+  const fees = ['Nothing — I would only do it if the tenant paid the fee','Up to $5 (0.5%)','Up to $10 (1%)','Up to $20 (2%)','Up to $30 (3%)','Up to $50 (5%)','More than $50, if the benefits offered were right'];
+  const shortFees = ['$0 (tenant pays)','≤$5','≤$10','≤$20','≤$30','≤$50','>$50'];
+  // Cumulative
+  const cumRows = [];
+  shortFees.forEach((label, i) => {
+    const matchFees = fees.slice(0, i + 1);
+    const row = [label, ...countries.map(([c, sub]) => pct(sub, r => matchFees.includes(r.fee_tolerance))),
+      pct(d, r => matchFees.includes(r.fee_tolerance))];
+    cumRows.push(row);
+  });
+  makeTable('tblFeeTolerance', 'Cumulative fee tolerance on $1,000 rent × Country',
+    ['Max fee', ...countries.map(([c]) => c), 'Overall'], cumRows, 'blue', 100);
+
+  // Activation likelihood
+  const actVals = ['Very likely','Somewhat likely','Neither likely nor unlikely','Somewhat unlikely','Very unlikely'];
+  const actRows = actVals.map(v => {
+    return [v, ...countries.map(([c, sub]) => pct(sub, r => r.activation_likelihood === v)),
+      pct(d, r => r.activation_likelihood === v)];
+  });
+  makeTable('tblActivation', 'Likelihood to activate if bank/software adds at no cost × Country',
+    ['', ...countries.map(([c]) => c), 'Overall'], actRows, 'green', 50);
+
+  // Features: interest vs priority
+  const feats = [
+    ['No cost to landlord','feat_no_cost','prio_no_cost'],
+    ['Built into existing tool','feat_built_in','prio_built_in'],
+    ['Rent-collection toolkit','feat_toolkit','prio_toolkit'],
+    ['Auto bookkeeping','feat_bookkeeping','prio_bookkeeping'],
+    ['Accept from phone','feat_phone','prio_phone'],
+    ['Same/next-day funding','feat_fast_funding','prio_fast_funding'],
+    ['Tenant credit building','feat_credit_building','prio_credit_building'],
+    ['Maintenance discounts','feat_discounts','prio_discounts'],
+    ['Insurance/protection','feat_insurance','prio_insurance'],
+    ['Short-term financing','feat_financing','prio_financing'],
+  ];
+  const likely = ['Somewhat likely','Very likely'];
+  const fRows = feats.map(([label, fField, pField]) => {
+    const interest = pct(d, r => likely.includes(r[fField]));
+    const priority = pct(d, r => r[pField] === true || r[pField] === 'true');
+    const gap = Math.round((interest - priority) * 10) / 10;
+    return [label, interest + '%', priority + '%', gap + 'pp'];
+  });
+  makeTable('tblFeatures', 'Feature interest (% likely) vs decision priority (% top-2)',
+    ['Feature','Interest','Priority','Gap'], fRows, 'green', 80);
+
+  // Trust
+  const trusts = [...new Set(d.map(r => r.most_trusted_provider).filter(Boolean))];
+  const tRows = trusts.map(t => {
+    const short = t.replace('My ','').replace('None of these — I\'d keep rent collection in my own hands','Keep it myself')
+      .replace('A dedicated rent-collection app or software company','Rent app').substring(0, 35);
+    return [short, ...countries.map(([c, sub]) => pct(sub, r => r.most_trusted_provider === t)),
+      pct(d, r => r.most_trusted_provider === t)];
+  }).sort((a, b) => parseFloat(b[b.length-1]) - parseFloat(a[a.length-1]));
+  makeTable('tblTrust', 'Most trusted provider for rent collection × Country',
+    ['', ...countries.map(([c]) => c), 'Overall'], tRows, 'green', 40);
+
+  // Ancillary charges
+  const ancFields = [['Application fees','anc_application'],['Security deposit (full)','anc_deposit_full'],
+    ['Security deposit (hold)','anc_deposit_hold'],['First/last month','anc_first_last'],
+    ['Add-ons','anc_addons'],['Late fees','anc_late_fees'],['Damage costs','anc_damage']];
+  const ancRows = ancFields.map(([label, field]) => {
+    const already = pct(d, r => r[field] === 'I already accept cards for this');
+    const willing = pct(d, r => r[field]?.includes('willing'));
+    const maybe = pct(d, r => r[field]?.includes('might consider'));
+    const no = pct(d, r => r[field] === 'I would not accept');
+    return [label, already + '%', willing + '%', maybe + '%', no + '%', (100 - no).toFixed(1) + '%'];
+  });
+  makeTable('tblAncillary', 'Willingness to accept cards for ancillary charges',
+    ['','Already accept','Willing','Might consider','Would not','Total positive'], ancRows, 'green', 100);
+}
+
+// ── CLAUDE CHAT ──
+const chatHistory = [];
+
+async function sendChat() {
+  const key = document.getElementById('apiKey').value.trim();
+  const input = document.getElementById('chatInput');
+  const msg = input.value.trim();
+  if (!key || !msg) return;
+
+  input.value = '';
+  const messages = document.getElementById('chatMessages');
+  messages.innerHTML += `<div class="msg user">${msg}</div>`;
+  messages.innerHTML += `<div class="msg system">Thinking...</div>`;
+  messages.scrollTop = messages.scrollHeight;
+  document.getElementById('chatSend').disabled = true;
+
+  // Build data summary for context
+  const summary = buildDataSummary();
+
+  chatHistory.push({ role: 'user', content: msg });
+
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': key, 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 2000,
+        system: `You are a survey data analyst. You have access to a filtered subset of a landlord survey (n=${filtered.length} of ${ALL_DATA.length} total).
+
+Here is a statistical summary of the currently filtered data:
+${summary}
+
+Answer questions about this data concisely. Use specific numbers. When comparing groups, show the percentages. Format tables with | pipes if helpful.`,
+        messages: chatHistory
+      })
+    });
+    const data = await r.json();
+    const reply = data.content?.[0]?.text || data.error?.message || 'No response';
+    chatHistory.push({ role: 'assistant', content: reply });
+
+    // Remove "Thinking..." and add response
+    const msgs = messages.querySelectorAll('.msg');
+    msgs[msgs.length - 1].remove();
+    const formatted = reply.replace(/</g, '&lt;').replace(/\n/g, '<br>').replace(/```([\s\S]*?)```/g, '<pre>$1</pre>');
+    messages.innerHTML += `<div class="msg assistant">${formatted}</div>`;
+  } catch (e) {
+    const msgs = messages.querySelectorAll('.msg');
+    msgs[msgs.length - 1].remove();
+    messages.innerHTML += `<div class="msg system">Error: ${e.message}</div>`;
+  }
+
+  document.getElementById('chatSend').disabled = false;
+  messages.scrollTop = messages.scrollHeight;
+}
+
+function buildDataSummary() {
+  const d = filtered;
+  const countries = {};
+  d.forEach(r => { countries[r.country] = (countries[r.country] || 0) + 1; });
+
+  const moderate = ['A moderate problem','A major problem','A serious ongoing problem'];
+  const likely = ['Somewhat likely','Very likely'];
+
+  let s = `FILTERED SAMPLE: ${d.length} respondents\n`;
+  s += `Countries: ${Object.entries(countries).map(([k,v]) => k + '=' + v).join(', ')}\n\n`;
+
+  s += `CARD STATUS:\n`;
+  const statuses = [...new Set(d.map(r => r.card_status))];
+  statuses.forEach(st => { s += `  ${st}: ${pct(d, r => r.card_status === st)}%\n`; });
+
+  s += `\nPAYMENT MIX (avg %):\n`;
+  ['pct_cash','pct_check','pct_bank_ach','pct_debit','pct_credit','pct_auto_debit'].forEach(f => {
+    s += `  ${f}: ${avg(d, f)}%\n`;
+  });
+
+  s += `\nCOLLECTION PAIN (% moderate+):\n`;
+  ['pain_late','pain_chasing','pain_bounced','pain_disputes','pain_transfer_limits'].forEach(f => {
+    s += `  ${f}: ${pct(d, r => moderate.includes(r[f]))}%\n`;
+  });
+
+  s += `\nFEE TOLERANCE:\n`;
+  const fees = ['Nothing — I would only do it if the tenant paid the fee','Up to $5 (0.5%)','Up to $10 (1%)','Up to $20 (2%)','Up to $30 (3%)'];
+  fees.forEach(f => { s += `  ${f}: ${pct(d, r => r.fee_tolerance === f)}%\n`; });
+
+  s += `\nACTIVATION LIKELIHOOD (if bank/software adds at no cost):\n`;
+  s += `  Very+Somewhat likely: ${pct(d, r => likely.includes(r.activation_likelihood))}%\n`;
+
+  s += `\nTOP FEATURE PRIORITIES (% top-2 pick):\n`;
+  ['prio_no_cost','prio_built_in','prio_toolkit','prio_bookkeeping','prio_fast_funding'].forEach(f => {
+    s += `  ${f}: ${pct(d, r => r[f] === true || r[f] === 'true')}%\n`;
+  });
+
+  s += `\nMOST TRUSTED PROVIDER:\n`;
+  const trusts = {};
+  d.forEach(r => { if (r.most_trusted_provider) trusts[r.most_trusted_provider] = (trusts[r.most_trusted_provider] || 0) + 1; });
+  Object.entries(trusts).sort((a,b) => b[1]-a[1]).slice(0, 5).forEach(([k,v]) => {
+    s += `  ${k}: ${(v/d.length*100).toFixed(1)}%\n`;
+  });
+
+  // Add raw data for first 30 rows as JSON for detailed queries
+  s += `\nRAW DATA (first 30 rows of filtered set):\n`;
+  s += JSON.stringify(d.slice(0, 30), null, 0).substring(0, 4000);
+
+  return s;
+}
+
+// ── INIT ──
+loadData();
+</script>
+
+</body>
+</html>
