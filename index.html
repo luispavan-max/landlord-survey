@@ -48,8 +48,8 @@ p,.prose{font-size:.88rem;color:var(--fgSoft);max-width:640px;margin-bottom:1rem
 /* STATS */
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.6rem;margin-bottom:1.25rem}
 .st{background:var(--surface);padding:1rem;border-radius:6px;text-align:center}
-.st .n{font-size:1.8rem;font-weight:800;letter-spacing:-.03em}
-.st .n.tl{color:var(--teal)}.st .n.or{color:var(--orange)}.st .n.nv{color:var(--navy)}
+.st .n{font-size:1.8rem;font-weight:800;letter-spacing:-.03em;color:var(--fg)}
+.st .n.tl{color:#2DD4BF}.st .n.or{color:#FB923C}.st .n.nv{color:var(--fg)}
 .st .l{font-size:.7rem;color:var(--muted);margin-top:.2rem;line-height:1.35}
 
 /* HEATMAP TABLES */
@@ -62,14 +62,16 @@ p,.prose{font-size:.88rem;color:var(--fgSoft);max-width:640px;margin-bottom:1rem
 .ht tr.totrow td{font-weight:700}
 .ht caption{text-align:left;font-size:.82rem;font-weight:600;color:var(--fg);padding-bottom:.4rem;caption-side:top}
 
-/* Heat palette */
-.h0{background:#F0FDF4;color:#166534}.h1{background:#BBF7D0;color:#166534}.h2{background:#86EFAC;color:#14532D}
-.h3{background:#4ADE80;color:#fff}.h4{background:#22C55E;color:#fff}.h5{background:#16A34A;color:#fff}.h6{background:#15803D;color:#fff}
-.r0{background:#FEF2F2;color:#991B1B}.r1{background:#FECACA;color:#991B1B}.r2{background:#FCA5A5;color:#7F1D1D}
-.r3{background:#F87171;color:#fff}.r4{background:#EF4444;color:#fff}.r5{background:#DC2626;color:#fff}
-.b0{background:#F0F9FF;color:#0C4A6E}.b1{background:#BAE6FD;color:#0C4A6E}.b2{background:#7DD3FC;color:#0C4A6E}
-.b3{background:#38BDF8;color:#fff}.b4{background:#0EA5E9;color:#fff}.b5{background:#0284C7;color:#fff}
+/* Heat palette — high contrast in both light and dark modes */
+.h0{background:#D1FAE5;color:#064E3B}.h1{background:#A7F3D0;color:#064E3B}.h2{background:#6EE7B7;color:#064E3B}
+.h3{background:#34D399;color:#fff}.h4{background:#10B981;color:#fff}.h5{background:#059669;color:#fff}.h6{background:#047857;color:#fff}
+.r0{background:#FFE4E6;color:#881337}.r1{background:#FECDD3;color:#881337}.r2{background:#FDA4AF;color:#881337}
+.r3{background:#FB7185;color:#fff}.r4{background:#F43F5E;color:#fff}.r5{background:#E11D48;color:#fff}
+.b0{background:#DBEAFE;color:#1E3A5F}.b1{background:#BFDBFE;color:#1E3A5F}.b2{background:#93C5FD;color:#1E3A5F}
+.b3{background:#60A5FA;color:#fff}.b4{background:#3B82F6;color:#fff}.b5{background:#2563EB;color:#fff}
 .n0{background:var(--surface);color:var(--muted)}
+/* Force cell text visibility regardless of page background */
+.ht td[class^="h"],.ht td[class^="r"],.ht td[class^="b"]{text-shadow:none}
 
 /* CSS BAR CHARTS */
 .bars{margin:.75rem 0 1rem}
