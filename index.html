@@ -3,605 +3,750 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Landlord Survey — Interactive Analysis</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<title>Landlord Card Acceptance — Survey Analysis &amp; Strategic Findings</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#fff;--fg:#1B2A4A;--muted:#64748B;--light:#94A3B8;--border:#E2E8F0;--sf:#F8FAFC;--sf2:#F1F5F9;--teal:#0EA5A0;--orange:#E8753A;--us:#3B82F6;--ca:#EF4444;--uae:#10B981;--navy:#1B2A4A}
+:root{
+  --bg:#fff;--fg:#1B2A4A;--fgSoft:#334155;--muted:#64748B;--light:#94A3B8;
+  --border:#E2E8F0;--surface:#F8FAFC;--surface2:#F1F5F9;--surface3:#E2E8F0;
+  --teal:#0EA5A0;--tealL:#5EEAD4;--tealD:#0F766E;
+  --orange:#E8753A;--orangeL:#FDBA74;--orangeD:#C2410C;
+  --us:#3B82F6;--ca:#EF4444;--uae:#10B981;
+  --navy:#1B2A4A;--navyL:#2D4263;
+}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0F172A;--fg:#E2E8F0;--fgSoft:#CBD5E1;--muted:#94A3B8;--light:#64748B;--border:#334155;--surface:#1E293B;--surface2:#334155;--surface3:#475569}}
+:root[data-theme="dark"]{--bg:#0F172A;--fg:#E2E8F0;--fgSoft:#CBD5E1;--muted:#94A3B8;--light:#64748B;--border:#334155;--surface:#1E293B;--surface2:#334155;--surface3:#475569}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--fg);font-size:14px;line-height:1.5}
-.hdr{background:linear-gradient(135deg,#1B2A4A,#0F766E);color:#fff;padding:1.5rem 1.5rem 1rem}
-.hdr h1{font-size:1.2rem;font-weight:700;color:#5EEAD4}
-.hdr p{font-size:.78rem;opacity:.7;margin-top:.25rem}
-.hdr .meta{font-size:.68rem;opacity:.5;margin-top:.5rem}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--fg);line-height:1.7;-webkit-font-smoothing:antialiased;font-size:15px}
 
-/* FILTERS */
-.filters{background:var(--sf);border-bottom:1px solid var(--border);padding:.75rem 1.5rem;display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;position:sticky;top:0;z-index:50}
-.filters label{font-size:.7rem;font-weight:600;color:var(--muted);display:flex;align-items:center;gap:.3rem}
-.filters select{font-family:inherit;font-size:.75rem;padding:.3rem .5rem;border:1px solid var(--border);border-radius:4px;background:#fff;color:var(--fg);cursor:pointer}
-.filter-count{font-size:.72rem;color:var(--teal);font-weight:600;margin-left:auto}
+/* COVER */
+.cover{background:linear-gradient(135deg,#1B2A4A 0%,#0F766E 100%);color:#fff;padding:4rem 2rem 3rem;position:relative}
+.cover::after{content:'';position:absolute;bottom:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#0EA5A0,#5EEAD4)}
+.cover .c{max-width:780px;margin:0 auto}
+.cover .kicker{font-size:.72rem;font-weight:600;letter-spacing:.08em;color:#5EEAD4;margin-bottom:1.5rem}
+.cover h1{font-size:2rem;font-weight:800;letter-spacing:-.03em;line-height:1.2;margin-bottom:.75rem}
+.cover .sub{font-size:1rem;font-weight:300;opacity:.85;max-width:580px;line-height:1.6}
+.cover .meta{margin-top:2rem;display:flex;gap:2.5rem;flex-wrap:wrap;font-size:.78rem;opacity:.6}
+.cover .meta span{display:flex;align-items:center;gap:.4rem}
 
-/* TABS */
-.tabs{display:flex;border-bottom:1px solid var(--border);background:var(--sf);padding:0 1.5rem}
-.tab{padding:.6rem 1rem;font-size:.75rem;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:.2s}
-.tab:hover,.tab.active{color:var(--teal);border-bottom-color:var(--teal)}
+/* LAYOUT */
+.c{max-width:780px;margin:0 auto;padding:0 2rem}
+section{padding:2.5rem 0;border-bottom:1px solid var(--border)}
+section:last-of-type{border-bottom:none}
+.chapter{font-size:.68rem;font-weight:700;letter-spacing:.07em;color:var(--teal);margin-bottom:.5rem}
+h2{font-size:1.3rem;font-weight:700;letter-spacing:-.015em;margin-bottom:.5rem;max-width:650px;line-height:1.35}
+h3{font-size:1rem;font-weight:600;margin:1.5rem 0 .5rem;color:var(--fg)}
+p,.prose{font-size:.88rem;color:var(--fgSoft);max-width:640px;margin-bottom:1rem;line-height:1.7}
 
-.content{padding:1.5rem;max-width:1000px;margin:0 auto}
-.pane{display:none}.pane.active{display:block}
+/* EXEC SUMMARY */
+.exec{background:var(--surface);border-radius:8px;padding:1.75rem;margin-bottom:1.5rem}
+.exec h3{margin-top:0;font-size:.95rem}
+.exec ol{padding-left:1.25rem;margin:.5rem 0}
+.exec li{font-size:.85rem;color:var(--fgSoft);margin-bottom:.6rem;line-height:1.6}
+.exec li strong{color:var(--fg)}
 
-/* STATS ROW */
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.5rem;margin-bottom:1.25rem}
-.st{background:var(--sf);border:1px solid var(--border);padding:.75rem;border-radius:6px;text-align:center}
-.st .n{font-size:1.5rem;font-weight:800;letter-spacing:-.02em}
-.st .n.tl{color:var(--teal)}.st .n.or{color:var(--orange)}
-.st .l{font-size:.65rem;color:var(--muted);margin-top:.15rem}
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.6rem;margin-bottom:1.25rem}
+.st{background:var(--surface);padding:1rem;border-radius:6px;text-align:center}
+.st .n{font-size:1.8rem;font-weight:800;letter-spacing:-.03em}
+.st .n.tl{color:var(--teal)}.st .n.or{color:var(--orange)}.st .n.nv{color:var(--navy)}
+.st .l{font-size:.7rem;color:var(--muted);margin-top:.2rem;line-height:1.35}
 
-/* HEATMAP TABLE */
-.ht{width:100%;border-collapse:separate;border-spacing:2px;margin:.5rem 0 1rem;font-size:.75rem}
-.ht caption{text-align:left;font-size:.8rem;font-weight:600;color:var(--fg);padding-bottom:.3rem;caption-side:top}
-.ht th{padding:.35rem .4rem;font-weight:600;text-align:center;color:var(--muted);font-size:.65rem;white-space:nowrap}
-.ht th:first-child{text-align:left;min-width:130px}
-.ht td{padding:.35rem .4rem;text-align:center;border-radius:3px;font-weight:600;font-size:.73rem}
-.ht td:first-child{text-align:left;font-weight:500;color:var(--fg);background:transparent!important}
-.ht tr.total td{font-weight:700;border-top:2px solid var(--border)}
+/* HEATMAP TABLES */
+.ht{width:100%;border-collapse:separate;border-spacing:2px;margin:.75rem 0;font-size:.78rem}
+.ht th{padding:.45rem .5rem;font-weight:600;text-align:center;color:var(--muted);font-size:.68rem;white-space:nowrap}
+.ht th:first-child{text-align:left;min-width:150px}
+.ht td{padding:.4rem .5rem;text-align:center;border-radius:3px;font-weight:600}
+.ht td:first-child{text-align:left;font-weight:500;color:var(--fg);background:transparent!important;font-size:.8rem}
+.ht tr.totrow{border-top:2px solid var(--border)}
+.ht tr.totrow td{font-weight:700}
+.ht caption{text-align:left;font-size:.82rem;font-weight:600;color:var(--fg);padding-bottom:.4rem;caption-side:top}
 
-/* DYNAMIC HEAT COLORS VIA JS */
-.heat-green{color:#166534}.heat-red{color:#fff}.heat-blue{color:#0C4A6E}
+/* Heat palette */
+.h0{background:#F0FDF4;color:#166534}.h1{background:#BBF7D0;color:#166534}.h2{background:#86EFAC;color:#14532D}
+.h3{background:#4ADE80;color:#fff}.h4{background:#22C55E;color:#fff}.h5{background:#16A34A;color:#fff}.h6{background:#15803D;color:#fff}
+.r0{background:#FEF2F2;color:#991B1B}.r1{background:#FECACA;color:#991B1B}.r2{background:#FCA5A5;color:#7F1D1D}
+.r3{background:#F87171;color:#fff}.r4{background:#EF4444;color:#fff}.r5{background:#DC2626;color:#fff}
+.b0{background:#F0F9FF;color:#0C4A6E}.b1{background:#BAE6FD;color:#0C4A6E}.b2{background:#7DD3FC;color:#0C4A6E}
+.b3{background:#38BDF8;color:#fff}.b4{background:#0EA5E9;color:#fff}.b5{background:#0284C7;color:#fff}
+.n0{background:var(--surface);color:var(--muted)}
 
-/* INSIGHT BOX */
-.insight{background:var(--sf);border-left:3px solid var(--teal);padding:.7rem .9rem;margin:.5rem 0 1rem;font-size:.78rem;color:var(--muted);border-radius:0 5px 5px 0;line-height:1.55}
+/* CSS BAR CHARTS */
+.bars{margin:.75rem 0 1rem}
+.bar-row{display:grid;grid-template-columns:170px 1fr 40px;align-items:center;margin-bottom:3px;font-size:.78rem}
+.bar-row .lbl{text-align:right;padding-right:.7rem;color:var(--fgSoft);font-size:.76rem}
+.bar-track{height:20px;background:var(--surface);border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;transition:width .4s}
+.bar-row .val{padding-left:.5rem;font-size:.72rem;font-weight:600;color:var(--muted)}
+.tl-fill{background:var(--teal)}.or-fill{background:var(--orange)}.us-fill{background:var(--us)}.ca-fill{background:var(--ca)}.uae-fill{background:var(--uae)}
+.nv-fill{background:var(--navy)}.gr-fill{background:#94A3B8}
+
+/* INSIGHT BOXES */
+.insight{background:var(--surface);border-left:3px solid var(--teal);padding:.85rem 1.1rem;margin:.75rem 0;font-size:.82rem;color:var(--fgSoft);border-radius:0 6px 6px 0;line-height:1.65}
 .insight strong{color:var(--fg)}
+.insight.warn{border-left-color:var(--orange)}
+.insight.rec{border-left-color:var(--us);background:#EFF6FF20}
 
-/* CLAUDE TAB */
-.claude-setup{background:var(--sf);border:1px solid var(--border);border-radius:6px;padding:1rem;margin-bottom:1rem}
-.claude-setup label{font-size:.75rem;font-weight:500;display:block;margin-bottom:.3rem}
-.claude-setup input{width:100%;font-family:inherit;font-size:.78rem;padding:.4rem .6rem;border:1px solid var(--border);border-radius:4px;margin-bottom:.5rem}
-.chat-box{border:1px solid var(--border);border-radius:6px;height:400px;display:flex;flex-direction:column;overflow:hidden}
-.chat-messages{flex:1;overflow-y:auto;padding:.75rem;font-size:.8rem}
-.chat-messages .msg{margin-bottom:.75rem;line-height:1.5}
-.chat-messages .msg.user{color:var(--teal);font-weight:500}
-.chat-messages .msg.assistant{color:var(--fg)}
-.chat-messages .msg.assistant pre{background:var(--sf);padding:.5rem;border-radius:4px;overflow-x:auto;font-size:.72rem;margin:.3rem 0;white-space:pre-wrap}
-.chat-messages .msg.system{color:var(--light);font-size:.72rem;font-style:italic}
-.chat-input{display:flex;border-top:1px solid var(--border);padding:.5rem}
-.chat-input input{flex:1;border:1px solid var(--border);border-radius:4px;padding:.4rem .6rem;font-family:inherit;font-size:.8rem}
-.chat-input button{margin-left:.4rem;padding:.4rem .8rem;background:var(--teal);color:#fff;border:none;border-radius:4px;font-family:inherit;font-size:.78rem;font-weight:600;cursor:pointer}
-.chat-input button:disabled{opacity:.5;cursor:not-allowed}
+/* NAV */
+nav{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--border);overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch}
+nav .c{display:flex;gap:0}
+nav a{padding:.65rem .85rem;font-size:.68rem;font-weight:500;color:var(--muted);text-decoration:none;border-bottom:2px solid transparent;flex-shrink:0;transition:color .2s,border-color .2s}
+nav a:hover{color:var(--teal);border-bottom-color:var(--teal)}
 
-.loading{text-align:center;padding:3rem;color:var(--muted);font-size:.85rem}
+/* RECS */
+.rec-card{background:var(--surface);border-radius:8px;padding:1.25rem;margin-bottom:.75rem}
+.rec-card h4{font-size:.9rem;font-weight:700;margin-bottom:.4rem;color:var(--fg)}
+.rec-card p{font-size:.82rem;margin-bottom:.4rem}
+.rec-card .tag-row{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.5rem}
+.rec-tag{font-size:.65rem;font-weight:600;padding:.2rem .5rem;border-radius:3px;background:var(--surface2);color:var(--muted)}
+.rec-tag.us{background:#DBEAFE;color:#1E40AF}.rec-tag.ca{background:#FEE2E2;color:#991B1B}.rec-tag.uae{background:#D1FAE5;color:#065F46}
+.rec-tag.all{background:#F0FDFA;color:#0F766E}
 
-@media(max-width:700px){
-  .filters{flex-direction:column;align-items:stretch}
-  .filter-count{margin-left:0}
+/* FOOTER */
+footer{padding:2rem;text-align:center;color:var(--light);font-size:.7rem;border-top:1px solid var(--border);line-height:1.6}
+
+/* RESPONSIVE */
+@media(max-width:680px){
+  .cover h1{font-size:1.4rem}
   .stats{grid-template-columns:repeat(2,1fr)}
-  .tabs{overflow-x:auto;-webkit-overflow-scrolling:touch}
-  .tab{white-space:nowrap;font-size:.7rem;padding:.5rem .6rem}
+  .bar-row{grid-template-columns:120px 1fr 36px}
+  .ht{font-size:.7rem}
+  .ht th:first-child,.ht td:first-child{min-width:100px}
+  nav a{padding:.6rem .6rem;font-size:.62rem}
 }
 </style>
 </head>
 <body>
 
-<header class="hdr">
-  <h1>Landlord Card Acceptance Survey</h1>
-  <p>Interactive cross-tabulation dashboard — filter, explore, and ask Claude for deeper analysis</p>
-  <div class="meta">n=240 · US 100, Canada 70, UAE 70 · September 2026 · Pollfish</div>
+<!-- ===== COVER ===== -->
+<header class="cover">
+<div class="c">
+  <div class="kicker">Survey Analysis &amp; Strategic Findings</div>
+  <h1>Landlord Card Acceptance Hinges on Embedded, Low-Fee Solutions</h1>
+  <p class="sub">A cross-tabulation analysis of how 240 landlords across the United States, Canada and the UAE think about accepting card payments for rent — and where the real opportunities sit for payment networks and enablers.</p>
+  <div class="meta">
+    <span>📋 n = 240 landlords</span>
+    <span>🌎 US 100 · Canada 70 · UAE 70</span>
+    <span>📅 September 15–16, 2026</span>
+    <span>🔬 Pollfish panel</span>
+  </div>
+</div>
 </header>
 
-<div class="filters" id="filters">
-  <label>Country <select id="fCountry"><option value="">All</option><option>United States</option><option>Canada</option><option>UAE</option></select></label>
-  <label>Portfolio <select id="fPortfolio"><option value="">All</option><option value="1">1 unit</option><option value="2 - 4">2–4</option><option value="5 - 9">5–9</option><option value="10 - 19">10–19</option><option value="20 - 49">20–49</option></select></label>
-  <label>Card status <select id="fCard"><option value="">All</option><option value="accepts">Accepts cards</option><option value="never">Never accepted</option><option value="former">Former acceptor</option></select></label>
-  <label>Management <select id="fMgmt"><option value="">All</option><option value="self">Self-managed</option><option value="pro">Professionally managed</option></select></label>
-  <span class="filter-count" id="filterCount">Loading...</span>
+<!-- ===== NAV ===== -->
+<div class="top-tabs" style="display:flex;border-bottom:2px solid var(--border);background:var(--surface);padding:0 2rem;position:sticky;top:0;z-index:100">
+  <a class="top-tab active" onclick="switchTopTab('report',this)" style="padding:.7rem 1.25rem;font-size:.78rem;font-weight:600;color:var(--teal);border-bottom:3px solid var(--teal);cursor:pointer;text-decoration:none">📊 Full Report</a>
+  <a class="top-tab" onclick="switchTopTab('explorer',this)" style="padding:.7rem 1.25rem;font-size:.78rem;font-weight:500;color:var(--muted);border-bottom:3px solid transparent;cursor:pointer;text-decoration:none">🔍 Interactive Explorer</a>
+  <a class="top-tab" onclick="switchTopTab('claude',this)" style="padding:.7rem 1.25rem;font-size:.78rem;font-weight:500;color:var(--muted);border-bottom:3px solid transparent;cursor:pointer;text-decoration:none">💬 Ask Claude</a>
+</div>
+<div id="tab-report">
+<nav><div class="c">
+  <a href="#exec">Summary</a>
+  <a href="#method">Method</a>
+  <a href="#profile">Profile</a>
+  <a href="#gap">The Gap</a>
+  <a href="#mix">Payment Mix</a>
+  <a href="#pain">Pain</a>
+  <a href="#barriers">Barriers</a>
+  <a href="#fees">Fees</a>
+  <a href="#triggers">Triggers</a>
+  <a href="#trust">Trust</a>
+  <a href="#hidden">Hidden Opp.</a>
+  <a href="#entry">Entry Points</a>
+  <a href="#demand">Demand</a>
+  <a href="#recs">Recommendations</a>
+</div></nav>
+
+<main class="c">
+
+<!-- ===== EXECUTIVE SUMMARY ===== -->
+<section id="exec">
+<div class="chapter">Executive Summary</div>
+<h2>The opportunity is real, large, and constrained by removable barriers — not by rejection</h2>
+
+<div class="stats">
+  <div class="st"><div class="n tl">81%</div><div class="l">would activate cards if offered via their bank / software at no cost</div></div>
+  <div class="st"><div class="n or">62%</div><div class="l">won't absorb more than $10 in fees per $1,000 rent</div></div>
+  <div class="st"><div class="n nv">58%</div><div class="l">already accept cards, but cards carry only 17% of rent</div></div>
+  <div class="st"><div class="n tl">91–95%</div><div class="l">positive toward cards for ancillary charges (deposits, move-in)</div></div>
 </div>
 
-<nav class="tabs">
-  <div class="tab active" data-pane="overview">Overview</div>
-  <div class="tab" data-pane="payment">Payment Mix</div>
-  <div class="tab" data-pane="pain">Pain Points</div>
-  <div class="tab" data-pane="adoption">Adoption</div>
-  <div class="tab" data-pane="claude">Ask Claude</div>
-</nav>
+<div class="exec">
+<h3>Six headline findings</h3>
+<ol>
+  <li><strong>Acceptance is ahead of behavior.</strong> 58% of landlords accept cards, but debit + credit combined represent only 17% of actual rent collected. Among acceptors, half say fewer than 50% of tenants actually use cards. The challenge is not enabling acceptance — it's driving usage.</li>
+  <li><strong>Canada is structurally different.</strong> Only 44% of Canadian landlords accept both card types, vs. 64% in the US and 63% in UAE. Interac e-Transfer carries 35% of Canadian rent, filling the digital role that cards play elsewhere. A card strategy for Canada must displace a working digital rail, not just paper.</li>
+  <li><strong>Cost is the decisive constraint, not complexity.</strong> 62% won't absorb more than $10 on $1,000 rent. Among non-acceptors, 41% demand the tenant pays the full fee. Standard card processing rates (2–3%) are a non-starter for 87–90% of the market. The model must be tenant-pays or zero-landlord-cost.</li>
+  <li><strong>UAE is the highest-pain, highest-readiness market.</strong> UAE landlords report 15–30pp more severe collection problems than US peers across every metric, yet 86% say they'd activate card acceptance if offered at no cost. Pain + willingness = fastest path to adoption.</li>
+  <li><strong>Ancillary charges are the 90%+ wedge.</strong> Resistance to cards for recurring rent does not extend to one-time charges. For deposits, application fees, first/last month, and damage costs, 89–95% already accept cards or would be willing. This is the low-friction entry point before expanding to monthly rent.</li>
+  <li><strong>42% of non-acceptors may be one click away.</strong> Among landlords who've never accepted cards, 19% say the feature is already available in their software but they hadn't thought about it, and 23% don't know if it's available. This is an awareness problem, not a product problem.</li>
+</ol>
+</div>
+</section>
 
-<div class="content">
-  <div id="loadingMsg" class="loading">Loading data from Supabase...</div>
+<!-- ===== METHODOLOGY ===== -->
+<section id="method">
+<div class="chapter">Methodology</div>
+<h2>Survey design and sample</h2>
+<p>240 landlords were surveyed via Pollfish's consumer panel on September 15–16, 2026, across three markets: United States (n=100), Canada (n=70), and United Arab Emirates (n=70). The survey included 44 questions covering landlord profile, property characteristics, current payment methods, card acceptance status, barriers, fee sensitivity, feature preferences, pain points, trust preferences, and experience with specialty rent platforms.</p>
+<p>Screening questions ensured all respondents own or manage residential rental property and have involvement in deciding how tenants pay rent. Respondents who selected "No input" on payment decisions or "None of the above" on property ownership were screened out.</p>
+<p><strong>Cross-tabulation approach:</strong> This analysis goes beyond the Pollfish AI-generated report by crossing key survey variables — card acceptance status, country, portfolio size, and management type — against behavioral, attitudinal, and pain-point questions. Heatmap tables throughout use color intensity to indicate relative magnitude within each table, with green tones for opportunity, red for pain/barriers, and blue for contextual metrics.</p>
+<p><strong>Limitations:</strong> The sample of 240 is directionally informative but not statistically representative of each national landlord population. Sub-group cross-tabs (especially non-acceptors, n=51, and never-accepted, n=43) should be treated as indicative patterns rather than precise estimates. Country-specific methods (Interac, Zelle, CareemPay) were shown only to respondents in the relevant market.</p>
+</section>
 
-  <!-- OVERVIEW -->
-  <div class="pane active" id="pane-overview">
-    <div class="stats" id="overviewStats"></div>
-    <table class="ht" id="tblCardByCountry"></table>
-    <table class="ht" id="tblCardByPortfolio"></table>
-    <table class="ht" id="tblCardUsage"></table>
+<!-- ===== 1. PROFILE ===== -->
+<section id="profile">
+<div class="chapter">Chapter 1</div>
+<h2>Small, self-managed landlords dominate — and they decide how rent gets paid</h2>
+<p>Nearly three-quarters of landlords control fewer than five units, and most manage properties themselves. Payment solutions must fit the realities of solo operators with no back-office team, no finance department, and no appetite for complex implementation.</p>
+
+<div class="stats">
+  <div class="st"><div class="n nv">72%</div><div class="l">own fewer than 5 units</div></div>
+  <div class="st"><div class="n nv">62%</div><div class="l">self-manage entirely or mostly</div></div>
+  <div class="st"><div class="n nv">53%</div><div class="l">majority single-family houses</div></div>
+  <div class="st"><div class="n nv">97%</div><div class="l">decide or influence payment methods</div></div>
+</div>
+
+<table class="ht">
+<caption>Portfolio size × Country</caption>
+<tr><th></th><th>1 unit</th><th>2–4</th><th>5–9</th><th>10–19</th><th>20–49</th></tr>
+<tr><td>US (n=100)</td><td class="b2">36%</td><td class="b1">32%</td><td class="b0">14%</td><td class="b1">17%</td><td class="b0">1%</td></tr>
+<tr><td>Canada (n=70)</td><td class="b1">23%</td><td class="b3">53%</td><td class="b1">19%</td><td class="b0">1%</td><td class="b0">4%</td></tr>
+<tr><td>UAE (n=70)</td><td class="b1">29%</td><td class="b3">53%</td><td class="b0">7%</td><td class="b0">11%</td><td class="b0">0%</td></tr>
+</table>
+
+<table class="ht">
+<caption>Management approach × Country</caption>
+<tr><th></th><th>Self-managed</th><th>Part-time PM</th><th>PM company</th><th>Dedicated team</th></tr>
+<tr><td>US</td><td class="b3">62%</td><td class="b1">19%</td><td class="b0">11%</td><td class="b0">8%</td></tr>
+<tr><td>Canada</td><td class="b4">69%</td><td class="b0">13%</td><td class="b0">13%</td><td class="b0">6%</td></tr>
+<tr><td>UAE</td><td class="b3">54%</td><td class="b1">23%</td><td class="b1">20%</td><td class="b0">3%</td></tr>
+</table>
+
+<div class="insight">Canada is the most self-managed market (69%), followed by the US (62%) and UAE (54%). The UAE shows more professional management involvement, which may explain some of its readiness for new payment infrastructure. In all three markets, the individual owner-operator is the primary decision-maker for payment acceptance.</div>
+</section>
+
+<!-- ===== 2. THE GAP ===== -->
+<section id="gap">
+<div class="chapter">Chapter 2</div>
+<h2>Card acceptance is widespread in principle — but actual card usage is thin</h2>
+<p>The headline figure — 58% accept cards — overstates the market's card readiness. When you look at what share of rent actually flows through cards and how many tenants use them, the picture shifts: cards are layered onto an existing payment mix, not replacing it.</p>
+
+<table class="ht">
+<caption>Card acceptance status × Country (row %)</caption>
+<tr><th></th><th>Both cards</th><th>Debit only</th><th>Credit only</th><th>Used to accept</th><th>Never accepted</th></tr>
+<tr><td>US (n=100)</td><td class="h4">64%</td><td class="h1">21%</td><td class="h0">3%</td><td class="r0">3%</td><td class="r1">12%</td></tr>
+<tr><td>Canada (n=70)</td><td class="h2">44%</td><td class="h0">14%</td><td class="h0">9%</td><td class="r0">4%</td><td class="r4">33%</td></tr>
+<tr><td>UAE (n=70)</td><td class="h4">63%</td><td class="h1">20%</td><td class="h0">6%</td><td class="r0">3%</td><td class="r0">11%</td></tr>
+<tr class="totrow"><td><strong>Overall (n=240)</strong></td><td class="h3">58%</td><td class="h0">15%</td><td class="h0">5%</td><td class="r0">3%</td><td class="r2">18%</td></tr>
+</table>
+
+<table class="ht">
+<caption>Card acceptance × Portfolio size</caption>
+<tr><th></th><th>Accepts cards</th><th>Does not accept</th><th>n</th></tr>
+<tr><td>1 unit</td><td class="h3">76%</td><td class="r1">24%</td><td>72</td></tr>
+<tr><td>2–4 units</td><td class="h3">78%</td><td class="r1">22%</td><td>106</td></tr>
+<tr><td>5–9 units</td><td class="h2">72%</td><td class="r2">28%</td><td>32</td></tr>
+<tr><td>10–19 units</td><td class="h5">92%</td><td class="r0">8%</td><td>26</td></tr>
+<tr><td>20–49 units</td><td class="h6">100%</td><td class="n0">0%</td><td>4</td></tr>
+</table>
+
+<table class="ht">
+<caption>Share of tenants actually paying by card (among acceptors) × Country</caption>
+<tr><th></th><th>Under 25%</th><th>25–50%</th><th>50–75%</th><th>Most or all</th></tr>
+<tr><td>US</td><td class="r1">34%</td><td class="b2">44%</td><td class="h1">18%</td><td class="h0">4%</td></tr>
+<tr><td>Canada</td><td class="r1">30%</td><td class="b3">57%</td><td class="h0">7%</td><td class="h0">5%</td></tr>
+<tr><td>UAE</td><td class="r1">33%</td><td class="b3">52%</td><td class="h0">10%</td><td class="h0">2%</td></tr>
+</table>
+
+<div class="insight"><strong>Canada is the structural outlier.</strong> One-third of Canadian landlords have never accepted cards — nearly triple the US and UAE rates. Interac e-Transfer already carries 35% of Canadian rent. A card strategy for Canada must displace a functioning digital rail, not just paper and cash. In the US and UAE, the opportunity is more about deepening existing card usage than enabling first-time acceptance.</div>
+</section>
+
+<!-- ===== 3. PAYMENT MIX ===== -->
+<section id="mix">
+<div class="chapter">Chapter 3</div>
+<h2>Rent flows through radically different rails in each market</h2>
+<p>Cards compete against different incumbent payment methods in each country. Understanding the local payment landscape is essential for positioning — a card proposition that ignores the dominant local rail will miss the mark.</p>
+
+<table class="ht">
+<caption>Average % of rent collected by payment method × Country</caption>
+<tr><th></th><th>🇺🇸 US</th><th>🇨🇦 Canada</th><th>🇦🇪 UAE</th><th>Overall</th></tr>
+<tr><td>Cash</td><td class="b2">24%</td><td class="b1">20%</td><td class="b2">24%</td><td>23%</td></tr>
+<tr><td>Check / Money Order</td><td class="b1">22%</td><td class="b0">11%</td><td class="b2">29%</td><td>21%</td></tr>
+<tr><td>Bank transfer / ACH</td><td class="b1">18%</td><td class="b1">20%</td><td class="b3">30%</td><td>22%</td></tr>
+<tr><td>Payment apps (Zelle/Venmo)</td><td class="b1">19%</td><td class="n0">—</td><td class="n0">—</td><td>19%*</td></tr>
+<tr><td>Interac e-Transfer</td><td class="n0">—</td><td class="b4">35%</td><td class="n0">—</td><td>35%*</td></tr>
+<tr><td>E-wallets (PayPal, CareemPay)</td><td class="n0">—</td><td class="n0">—</td><td class="b0">11%</td><td>11%*</td></tr>
+<tr style="background:var(--surface2)"><td><strong>Debit card</strong></td><td class="h0">11%</td><td class="h0">6%</td><td class="h0">10%</td><td><strong>9%</strong></td></tr>
+<tr style="background:var(--surface2)"><td><strong>Credit card</strong></td><td class="h0">8%</td><td class="h0">6%</td><td class="h0">11%</td><td><strong>8%</strong></td></tr>
+<tr><td>Auto debit</td><td class="b0">5%</td><td class="b0">4%</td><td class="b0">6%</td><td>5%</td></tr>
+<tr><td>Government subsidies</td><td class="b0">6%</td><td class="b0">4%</td><td class="b0">6%</td><td>5%</td></tr>
+</table>
+<p style="font-size:.7rem;color:var(--light);margin-top:-.5rem">* Country-specific methods — average within that market only. Dashes indicate method not shown in that country's survey version.</p>
+
+<div class="insight"><strong>Three markets, three competitive landscapes.</strong> In Canada, the incumbent is Interac (35%). In the UAE, bank transfer (30%) and checks (29%). In the US, the landscape is most fragmented with payment apps (Zelle/Venmo) at 19% — as large as any single rail. Card adoption messaging must address what it improves over the locally dominant method, not over a generic "traditional" baseline.</div>
+</section>
+
+<!-- ===== 4. PAIN POINTS ===== -->
+<section id="pain">
+<div class="chapter">Chapter 4</div>
+<h2>UAE feels the most pain across every dimension — and card acceptors report more problems, not fewer</h2>
+<p>Collection pain is universal, but severity varies sharply by market. UAE landlords consistently report 15–30pp more intense problems than US peers. And a counter-intuitive finding challenges the assumption that cards reduce friction.</p>
+
+<table class="ht">
+<caption>Collection pain points × Country (% reporting moderate, major, or serious problem)</caption>
+<tr><th></th><th>🇺🇸 US</th><th>🇨🇦 Canada</th><th>🇦🇪 UAE</th><th>Overall</th></tr>
+<tr><td>Late payments</td><td class="r2">47%</td><td class="r3">53%</td><td class="r3">56%</td><td>51%</td></tr>
+<tr><td>Chasing tenants to pay</td><td class="r1">39%</td><td class="r2">49%</td><td class="r3">57%</td><td>47%</td></tr>
+<tr><td>Transfer limits / staggered receipts</td><td class="r1">39%</td><td class="r2">44%</td><td class="r4">61%</td><td>47%</td></tr>
+<tr><td>Partial payments</td><td class="r1">38%</td><td class="r2">44%</td><td class="r3">56%</td><td>45%</td></tr>
+<tr><td>Bounced / returned payments</td><td class="r1">34%</td><td class="r1">39%</td><td class="r4">64%</td><td>44%</td></tr>
+<tr><td>Disputes over whether rent was paid</td><td class="r1">36%</td><td class="r2">41%</td><td class="r2">47%</td><td>41%</td></tr>
+<tr><td>Not knowing if payment arrived</td><td class="r1">32%</td><td class="r2">41%</td><td class="r3">50%</td><td>40%</td></tr>
+</table>
+
+<table class="ht">
+<caption>Operational pain × Country (% moderate+)</caption>
+<tr><th></th><th>🇺🇸 US</th><th>🇨🇦 Canada</th><th>🇦🇪 UAE</th><th>Overall</th></tr>
+<tr><td>Collecting repair / damage costs</td><td class="r1">39%</td><td class="r3">50%</td><td class="r3">59%</td><td>48%</td></tr>
+<tr><td>Fees paid to collect rent</td><td class="r2">41%</td><td class="r1">37%</td><td class="r2">47%</td><td>42%</td></tr>
+<tr><td>Manual tracking / bookkeeping</td><td class="r1">36%</td><td class="r2">43%</td><td class="r2">44%</td><td>40%</td></tr>
+<tr><td>Vacancy / turnover costs</td><td class="r1">32%</td><td class="r2">43%</td><td class="r3">50%</td><td>40%</td></tr>
+<tr><td>Collecting first month + deposit</td><td class="r2">43%</td><td class="r2">40%</td><td class="r1">36%</td><td>40%</td></tr>
+<tr><td>Returning security deposits</td><td class="r1">34%</td><td class="r2">47%</td><td class="r2">41%</td><td>40%</td></tr>
+<tr><td>Handling cash safely</td><td class="r1">37%</td><td class="r2">41%</td><td class="r1">39%</td><td>39%</td></tr>
+</table>
+
+<h3>The card-acceptor paradox</h3>
+<p>Landlords who already accept cards report higher levels of collection pain on every metric than those who don't — the opposite of what one might expect if cards were solving these problems.</p>
+
+<table class="ht">
+<caption>Collection pain × Card acceptance status (% moderate+)</caption>
+<tr><th></th><th style="color:var(--teal)">Card acceptors (n=189)</th><th style="color:var(--orange)">Non-acceptors (n=51)</th><th>Gap</th></tr>
+<tr><td>Late payments</td><td class="r3">53%</td><td class="r2">43%</td><td>+10pp</td></tr>
+<tr><td>Transfer limits / staggered</td><td class="r3">52%</td><td class="r1">29%</td><td style="color:var(--orange);font-weight:700">+23pp</td></tr>
+<tr><td>Chasing tenants</td><td class="r2">49%</td><td class="r2">41%</td><td>+8pp</td></tr>
+<tr><td>Partial payments</td><td class="r2">47%</td><td class="r1">37%</td><td>+10pp</td></tr>
+<tr><td>Bounced payments</td><td class="r2">47%</td><td class="r1">33%</td><td style="color:var(--orange);font-weight:700">+14pp</td></tr>
+<tr><td>Disputes over payment</td><td class="r2">45%</td><td class="r1">26%</td><td style="color:var(--orange);font-weight:700">+20pp</td></tr>
+<tr><td>Not knowing if paid</td><td class="r2">43%</td><td class="r1">29%</td><td style="color:var(--orange);font-weight:700">+14pp</td></tr>
+</table>
+
+<div class="insight warn"><strong>Two possible explanations.</strong> Either cards add complexity (chargebacks, multiple rails to reconcile, reconciliation across platforms), or landlords experiencing more pain are more likely to have sought out card solutions. Both readings have the same product implication: the value proposition cannot simply be "accept cards to fix your problems." It must be "accept cards as part of an integrated solution that automates collection, reconciliation, and follow-up."</div>
+</section>
+
+<!-- ===== 5. BARRIERS ===== -->
+<section id="barriers">
+<div class="chapter">Chapter 5</div>
+<h2>The barriers are removable — and they differ significantly by market</h2>
+<p>Among the 43 landlords who have never accepted cards, no single barrier dominates. Instead, a cluster of inertia, cost, and philosophical concerns keeps them out. Technical complexity and lack of software support barely register.</p>
+
+<table class="ht">
+<caption>Barriers to card acceptance × Country (never-accepted landlords, n=43, multi-select)</caption>
+<tr><th></th><th>🇺🇸 US<br>(n=12)</th><th>🇨🇦 Canada<br>(n=23)</th><th>🇦🇪 UAE<br>(n=8)</th><th>Overall<br>(n=43)</th></tr>
+<tr><td>Current methods work fine</td><td class="r1">33%</td><td class="r1">22%</td><td class="r5">75%</td><td>35%</td></tr>
+<tr><td>I'd have to absorb the cost</td><td class="r1">33%</td><td class="r1">26%</td><td class="r1">38%</td><td>30%</td></tr>
+<tr><td>Don't want tenants on credit</td><td class="r0">17%</td><td class="r1">35%</td><td class="r1">38%</td><td>30%</td></tr>
+<tr><td>Fees are too high</td><td class="r1">25%</td><td class="r1">26%</td><td class="r1">38%</td><td>28%</td></tr>
+<tr><td>Chargeback / dispute risk</td><td class="r2">42%</td><td class="r1">26%</td><td class="r0">13%</td><td>28%</td></tr>
+<tr><td>No tenant has asked</td><td class="r0">8%</td><td class="r1">22%</td><td class="r1">38%</td><td>21%</td></tr>
+<tr><td>Setup seems complicated</td><td class="r1">25%</td><td class="r0">13%</td><td class="r1">25%</td><td>19%</td></tr>
+<tr><td>Software / bank doesn't support it</td><td class="r0">8%</td><td class="r0">9%</td><td class="n0">0%</td><td>7%</td></tr>
+<tr><td>I don't know how</td><td class="r0">8%</td><td class="r0">4%</td><td class="n0">0%</td><td>5%</td></tr>
+</table>
+
+<div class="insight"><strong>The country-specific barrier profiles:</strong> In the US, chargeback risk is the top concern (42%) — fraud and dispute handling. In Canada, not wanting tenants on credit (35%) and general inertia. In the UAE, inertia is overwhelming (75% "current methods work fine") despite reporting the highest collection pain of all three markets. This disconnect between pain and inertia suggests UAE non-acceptors are the most convertible: they have the problems cards could help with, they just haven't been prompted to act.</div>
+</section>
+
+<!-- ===== 6. FEE CEILING ===== -->
+<section id="fees">
+<div class="chapter">Chapter 6</div>
+<h2>The fee ceiling is low — and non-acceptors set it even lower</h2>
+<p>Willingness to absorb processing fees follows a steep cumulative curve that differs meaningfully between current card acceptors and non-acceptors. This is the most important product-design constraint in the survey.</p>
+
+<table class="ht">
+<caption>Cumulative fee tolerance on $1,000 rent × Card status</caption>
+<tr><th>Maximum fee landlord will absorb</th><th style="color:var(--teal)">Card acceptors<br>(n=189)</th><th style="color:var(--orange)">Non-acceptors<br>(n=51)</th><th>Overall<br>(n=240)</th></tr>
+<tr><td>$0 — tenant must pay all</td><td class="b0">18%</td><td class="r2">41%</td><td>23%</td></tr>
+<tr><td>≤ $5 (0.5%)</td><td class="b1">37%</td><td class="r3">59%</td><td>41%</td></tr>
+<tr><td>≤ $10 (1.0%)</td><td class="b3">59%</td><td class="r3">71%</td><td>62%</td></tr>
+<tr><td>≤ $20 (2.0%)</td><td class="b4">78%</td><td class="r4">88%</td><td>80%</td></tr>
+<tr><td>≤ $30 (3.0%)</td><td class="b4">87%</td><td class="r4">88%</td><td>87%</td></tr>
+<tr><td>≤ $50 (5.0%)</td><td class="b5">95%</td><td class="r4">88%</td><td>93%</td></tr>
+</table>
+
+<table class="ht">
+<caption>Cumulative fee tolerance × Country</caption>
+<tr><th>Maximum fee</th><th>🇺🇸 US</th><th>🇨🇦 Canada</th><th>🇦🇪 UAE</th></tr>
+<tr><td>$0 — tenant pays</td><td>20%</td><td>27%</td><td>21%</td></tr>
+<tr><td>≤ $5</td><td>38%</td><td>41%</td><td>46%</td></tr>
+<tr><td>≤ $10</td><td>58%</td><td>64%</td><td>64%</td></tr>
+<tr><td>≤ $20</td><td class="b3">81%</td><td class="b4">84%</td><td class="b3">76%</td></tr>
+<tr><td>≤ $30</td><td class="b4">87%</td><td class="b4">90%</td><td class="b4">84%</td></tr>
+</table>
+
+<div class="insight"><strong>The conversion gap.</strong> 41% of non-acceptors insist on zero landlord cost — more than double the 18% among current acceptors. And at standard card rates (2–3%), you've lost 87–88% of both groups. Product design for conversion must be tenant-pays or zero-cost. For expanding usage among current acceptors, there's a narrow window up to 1% ($10) — but it requires clear value-for-fee messaging.</div>
+</section>
+
+<!-- ===== 7. TRIGGERS ===== -->
+<section id="triggers">
+<div class="chapter">Chapter 7</div>
+<h2>Many features spark interest — only four drive decisions</h2>
+<p>The survey tested 10 potential features twice: first asking how likely each would make them to adopt cards (broad interest), then forcing a pick of just two priorities (revealed importance). The gap between these two measures exposes which features are "nice to have" versus "must have."</p>
+
+<table class="ht">
+<caption>Feature interest (% likely) vs. decision priority (% top-2 pick) × Country</caption>
+<tr><th></th><th>Interest</th><th>Priority</th><th>Gap</th><th>🇺🇸</th><th>🇨🇦</th><th>🇦🇪</th></tr>
+<tr style="background:var(--surface2)"><td><strong>No cost to landlord</strong></td><td class="h2">65%</td><td class="h4">38%</td><td>27pp</td><td>40%</td><td>39%</td><td>36%</td></tr>
+<tr style="background:var(--surface2)"><td><strong>Built into existing tool</strong></td><td class="h3">68%</td><td class="h2">29%</td><td>39pp</td><td>35%</td><td>26%</td><td>24%</td></tr>
+<tr style="background:var(--surface2)"><td><strong>Rent-collection toolkit</strong></td><td class="h2">63%</td><td class="h2">28%</td><td>35pp</td><td>24%</td><td>31%</td><td>30%</td></tr>
+<tr style="background:var(--surface2)"><td><strong>Auto bookkeeping / taxes</strong></td><td class="h3">67%</td><td class="h1">25%</td><td>42pp</td><td>22%</td><td>26%</td><td>27%</td></tr>
+<tr><td>Same / next-day funding</td><td class="h3">72%</td><td class="h1">20%</td><td style="color:var(--orange)">52pp</td><td>16%</td><td>17%</td><td>30%</td></tr>
+<tr><td>Accept from phone</td><td class="h3">70%</td><td class="h0">19%</td><td>51pp</td><td>18%</td><td>24%</td><td>14%</td></tr>
+<tr><td>Tenant credit building</td><td class="h4">74%</td><td class="r0">9%</td><td style="color:var(--orange);font-weight:700">65pp</td><td>10%</td><td>9%</td><td>9%</td></tr>
+<tr><td>Insurance / protection</td><td class="h3">72%</td><td class="r0">9%</td><td>63pp</td><td>10%</td><td>9%</td><td>7%</td></tr>
+<tr><td>Maintenance discounts</td><td class="h3">70%</td><td class="r0">8%</td><td>62pp</td><td>5%</td><td>6%</td><td>13%</td></tr>
+<tr><td>Short-term financing</td><td class="h3">67%</td><td class="r0">2%</td><td style="color:var(--orange);font-weight:700">65pp</td><td>2%</td><td>1%</td><td>1%</td></tr>
+</table>
+
+<table class="ht">
+<caption>Decision priorities × Card acceptance status</caption>
+<tr><th></th><th style="color:var(--teal)">Acceptors</th><th style="color:var(--orange)">Non-acceptors</th><th>Δ</th></tr>
+<tr><td>No cost to landlord</td><td>36%</td><td class="r3">47%</td><td style="color:var(--orange)">+11pp</td></tr>
+<tr><td>Built into existing tool</td><td>30%</td><td>26%</td><td>-4pp</td></tr>
+<tr><td>Rent-collection toolkit</td><td>29%</td><td>24%</td><td>-5pp</td></tr>
+<tr><td>Auto bookkeeping</td><td>26%</td><td>20%</td><td>-6pp</td></tr>
+<tr><td>Same/next-day funding</td><td>21%</td><td>20%</td><td>-1pp</td></tr>
+<tr><td>Tenant credit building</td><td>8%</td><td>14%</td><td>+6pp</td></tr>
+</table>
+
+<div class="insight"><strong>Tenant credit building has the widest interest-to-priority gap in the entire survey</strong> (74% vs. 9% = 65pp gap). It's a feel-good feature that landlords like the idea of but would not trade cost protection or workflow integration for. The four features that survive the priority filter — no cost, embedded access, collection toolkit, auto bookkeeping — are all practical, operational, and economic. Lead with those; use tenant benefits as secondary reinforcement.</div>
+</section>
+
+<!-- ===== 8. TRUST ===== -->
+<section id="trust">
+<div class="chapter">Chapter 8</div>
+<h2>Banks are the #1 trusted channel everywhere — but the right #2 partner varies by market</h2>
+<p>Standalone rent-collection apps rank last at 4%. The market is telling providers clearly: embed card acceptance into relationships landlords already have and trust, rather than asking them to adopt a new platform.</p>
+
+<table class="ht">
+<caption>Most trusted provider for rent collection × Country</caption>
+<tr><th></th><th>🇺🇸 US</th><th>🇨🇦 Canada</th><th>🇦🇪 UAE</th><th>Overall</th></tr>
+<tr style="background:var(--surface2)"><td><strong>My bank</strong></td><td class="h1">24%</td><td class="h1">26%</td><td class="h4">39%</td><td><strong>29%</strong></td></tr>
+<tr><td>PM company</td><td class="h1">22%</td><td class="h0">16%</td><td class="h0">16%</td><td>18%</td></tr>
+<tr><td>Accountant / bookkeeper</td><td class="h0">15%</td><td class="h0">17%</td><td class="h0">11%</td><td>15%</td></tr>
+<tr><td>Broker / agent</td><td class="h0">10%</td><td class="h0">13%</td><td class="h0">17%</td><td>13%</td></tr>
+<tr><td>Attorney</td><td class="h0">14%</td><td class="h0">7%</td><td class="h0">3%</td><td>9%</td></tr>
+<tr><td>Keep it in my own hands</td><td class="h0">8%</td><td class="h0">14%</td><td class="h0">4%</td><td>9%</td></tr>
+<tr style="color:var(--orange)"><td><strong>Rent-collection app</strong></td><td class="r0">5%</td><td class="r0">4%</td><td class="r0">3%</td><td><strong>4%</strong></td></tr>
+</table>
+
+<div class="insight"><strong>Partnership strategy must be localized.</strong> UAE = bank-led (39%). US = banks (24%) + PM companies (22%) — dual-channel. Canada = banks (26%) + accountants (17%) — and notably, 14% of Canadians prefer to keep collection in their own hands, the highest self-reliance rate. Standalone rent-tech plays start at a 4% trust floor.</div>
+</section>
+
+<!-- ===== 9. HIDDEN OPPORTUNITY ===== -->
+<section id="hidden">
+<div class="chapter">Chapter 9</div>
+<h2>42% of non-acceptors may already be one activation prompt away</h2>
+<p>Among landlords who have never accepted cards, a surprising share already has the capability in their existing tools — they just haven't been prompted to turn it on. Combined with 81% overall willingness to activate at no cost, this is an awareness and UX problem, not a product gap.</p>
+
+<table class="ht">
+<caption>Awareness of existing card features (never-accepted landlords, n=43) × Country</caption>
+<tr><th></th><th>🇺🇸 US</th><th>🇨🇦 Canada</th><th>🇦🇪 UAE</th><th>Overall</th></tr>
+<tr style="background:var(--surface2)"><td><strong>Available but hadn't thought about it</strong></td><td class="h3">33%</td><td class="h0">12%</td><td class="h2">30%</td><td>19%</td></tr>
+<tr style="background:var(--surface2)"><td><strong>Don't know if available</strong></td><td class="h0">13%</td><td class="h2">27%</td><td class="h1">20%</td><td>23%</td></tr>
+<tr><td>Chose not to use it</td><td>20%</td><td>12%</td><td>0%</td><td>12%</td></tr>
+<tr><td>Not available</td><td>20%</td><td>38%</td><td>10%</td><td>28%</td></tr>
+<tr><td>Don't use software</td><td>13%</td><td>12%</td><td>40%</td><td>19%</td></tr>
+</table>
+
+<table class="ht">
+<caption>Willingness to activate if bank/software adds it at no cost × Country and card status</caption>
+<tr><th></th><th>Very likely</th><th>Somewhat likely</th><th style="color:var(--teal)">Combined</th></tr>
+<tr><td>🇦🇪 UAE</td><td>43%</td><td>43%</td><td class="h5"><strong>86%</strong></td></tr>
+<tr><td>🇺🇸 US</td><td>39%</td><td>42%</td><td class="h4"><strong>81%</strong></td></tr>
+<tr><td>🇨🇦 Canada</td><td>29%</td><td>49%</td><td class="h3"><strong>77%</strong></td></tr>
+<tr class="totrow"><td><strong>Overall</strong></td><td><strong>37%</strong></td><td><strong>44%</strong></td><td class="h4"><strong>81%</strong></td></tr>
+<tr><td colspan="4" style="height:6px;background:transparent"></td></tr>
+<tr><td style="color:var(--teal)">Card acceptors</td><td>41%</td><td>44%</td><td class="h5"><strong>85%</strong></td></tr>
+<tr><td style="color:var(--orange)">Non-acceptors</td><td>22%</td><td>45%</td><td class="h3"><strong>67%</strong></td></tr>
+</table>
+
+<div class="insight"><strong>The US activation opportunity is the most immediate.</strong> One-third of US never-accepted landlords already have card features available but hadn't thought about it. A simple UX prompt — "You can now accept card payments from your tenants. Turn it on?" — could convert a meaningful share without any new sales motion, product build, or partnership.</div>
+</section>
+
+<!-- ===== 10. ENTRY POINTS ===== -->
+<section id="entry">
+<div class="chapter">Chapter 10</div>
+<h2>Ancillary charges are the 90%+ entry point — before touching recurring rent</h2>
+<p>The resistance landlords show toward absorbing card fees on monthly rent does not extend to one-time and ancillary charges. For every category tested — deposits, application fees, first/last month, damage costs — between 89% and 95% of landlords already accept cards or would be willing to.</p>
+
+<table class="ht">
+<caption>Willingness to accept cards for ancillary charges (all respondents, n=240)</caption>
+<tr><th></th><th style="color:var(--teal)">Already accept</th><th>Willing (absorb or pass fee)</th><th>Might consider</th><th style="color:var(--orange)">Would not</th><th style="color:var(--teal)">Total positive</th></tr>
+<tr><td>Security deposit (full)</td><td class="h1">28%</td><td class="h2">51%</td><td class="b0">16%</td><td class="r0">5%</td><td class="h5"><strong>95%</strong></td></tr>
+<tr><td>Security deposit (hold on card)</td><td class="h1">25%</td><td class="h2">51%</td><td class="b0">18%</td><td class="r0">6%</td><td class="h5"><strong>94%</strong></td></tr>
+<tr><td>First / last month's rent</td><td class="h2">32%</td><td class="h2">44%</td><td class="b0">18%</td><td class="r0">7%</td><td class="h4"><strong>93%</strong></td></tr>
+<tr><td>Application / screening fees</td><td class="h1">29%</td><td class="h2">51%</td><td class="b0">12%</td><td class="r0">9%</td><td class="h4"><strong>91%</strong></td></tr>
+<tr><td>Add-on charges (parking, pet, etc.)</td><td class="h1">24%</td><td class="h2">50%</td><td class="b0">17%</td><td class="r0">9%</td><td class="h4"><strong>91%</strong></td></tr>
+<tr><td>Damage / move-out costs</td><td class="h1">24%</td><td class="h3">55%</td><td class="b0">12%</td><td class="r0">9%</td><td class="h4"><strong>91%</strong></td></tr>
+<tr><td>Late fees and penalties</td><td class="h1">23%</td><td class="h2">51%</td><td class="b0">15%</td><td class="r0">11%</td><td class="h3"><strong>89%</strong></td></tr>
+</table>
+
+<div class="insight"><strong>The wedge strategy.</strong> Start with move-in charges where willingness is highest (deposits at 95%, first month at 93%) and the one-time nature reduces fee resistance. Build landlord familiarity with card payments in a low-stakes context. Then expand to recurring rent as comfort grows and operational benefits become visible.</div>
+</section>
+
+<!-- ===== 11. TENANT DEMAND ===== -->
+<section id="demand">
+<div class="chapter">Chapter 11</div>
+<h2>Tenant demand is real — but non-acceptors live in a demand vacuum</h2>
+<p>69% of all landlords have been asked by a tenant to pay via a method they don't offer. But this demand concentrates among those who already accept cards. Non-acceptors, by contrast, exist in a self-reinforcing loop where limited options suppress tenant requests.</p>
+
+<table class="ht">
+<caption>Tenant requests for unsupported payment methods (last 12 months) × Country</caption>
+<tr><th></th><th>🇺🇸 US</th><th>🇨🇦 Canada</th><th>🇦🇪 UAE</th><th>Overall</th></tr>
+<tr><td>Asked for credit card</td><td class="h2">40%</td><td class="h1">29%</td><td class="h1">30%</td><td>34%</td></tr>
+<tr><td>Asked for debit card</td><td class="h2">38%</td><td class="h1">21%</td><td class="h1">34%</td><td>32%</td></tr>
+<tr><td>Asked for payment app</td><td class="h1">29%</td><td class="h1">24%</td><td class="h2">40%</td><td>31%</td></tr>
+<tr style="color:var(--orange)"><td><strong>No request at all</strong></td><td class="r1">33%</td><td class="r2">46%</td><td class="r0">14%</td><td><strong>31%</strong></td></tr>
+</table>
+
+<table class="ht">
+<caption>Tenant demand × Card acceptance status</caption>
+<tr><th></th><th style="color:var(--teal)">Card acceptors (n=189)</th><th style="color:var(--orange)">Non-acceptors (n=51)</th></tr>
+<tr><td>Asked for credit card</td><td>37%</td><td class="r1">16%</td></tr>
+<tr><td>Asked for debit card</td><td>37%</td><td class="r0">12%</td></tr>
+<tr><td>Asked for payment app</td><td>33%</td><td class="r1">18%</td></tr>
+<tr><td><strong>No request at all</strong></td><td>25%</td><td class="r4"><strong>59%</strong></td></tr>
+</table>
+
+<table class="ht">
+<caption>Why current acceptors adopted cards × Country (top reasons, multi-select)</caption>
+<tr><th></th><th>🇺🇸 US</th><th>🇨🇦 Canada</th><th>🇦🇪 UAE</th><th>Overall</th></tr>
+<tr><td>Tenants asked to pay by card</td><td class="h3">54%</td><td class="h2">43%</td><td class="h1">35%</td><td>46%</td></tr>
+<tr><td>Helps me get paid on time</td><td class="h1">33%</td><td class="h1">21%</td><td class="h4">60%</td><td>39%</td></tr>
+<tr><td>Costs little — tenants pay fee</td><td class="h1">29%</td><td class="h1">32%</td><td class="h1">32%</td><td>31%</td></tr>
+<tr><td>Already available in software</td><td class="h1">26%</td><td class="h1">23%</td><td class="h1">28%</td><td>26%</td></tr>
+<tr><td>Money arrives faster</td><td class="h1">24%</td><td class="h1">21%</td><td class="h1">32%</td><td>25%</td></tr>
+<tr><td>Reduces chasing / collection work</td><td class="h1">21%</td><td class="h1">23%</td><td class="h1">27%</td><td>23%</td></tr>
+</table>
+
+<div class="insight"><strong>The demand loop:</strong> Non-acceptors don't offer options → tenants don't ask → landlord sees "no demand" → status quo reinforced. UAE has the least of this problem (only 14% with zero requests), which helps explain its higher readiness. And among UAE acceptors, "helps me get paid on time" is the #1 reason (60%) — a concrete operational benefit, not a tenant request.</div>
+</section>
+
+<!-- ===== STRATEGIC RECOMMENDATIONS ===== -->
+<section id="recs">
+<div class="chapter">Strategic Recommendations</div>
+<h2>Six priorities for driving card-based rent acceptance</h2>
+<p>The data points to a market that is ready in principle but held back by cost concerns, operational inertia, and awareness gaps. The following recommendations are grounded in the cross-tabulation evidence above, prioritized by addressability and impact.</p>
+
+<div class="rec-card">
+<h4>1. Design for tenant-pays or zero landlord cost — without exception</h4>
+<p>62% won't absorb more than $10 on $1,000 rent. Among non-acceptors, 41% insist on zero cost. Standard card interchange (2–3%) prices out 87–90% of the market. Any offer that asks landlords to bear the fee without clear offsetting value will face the same resistance that has kept 18% out of cards entirely. Fee calculators and transparent pricing should be core to the onboarding experience.</p>
+<div class="tag-row"><span class="rec-tag all">All markets</span><span class="rec-tag">Product design</span></div>
+</div>
+
+<div class="rec-card">
+<h4>2. Embed card acceptance into banks and PM platforms — don't build standalone</h4>
+<p>29% trust their bank most for rent collection; only 4% trust a dedicated rent app. 81% would activate if offered through their existing bank/software at no cost. The distribution strategy should be embedded: integrate with bank apps, PM software (Yardi, AppFolio, Buildium in the US; RentCafe/MRI in UAE), and accounting tools (QuickBooks in the US/Canada). The standalone app play is structurally disadvantaged.</p>
+<div class="tag-row"><span class="rec-tag all">All markets</span><span class="rec-tag">Distribution</span></div>
+</div>
+
+<div class="rec-card">
+<h4>3. Start with ancillary charges as the wedge, then expand to recurring rent</h4>
+<p>91–95% of landlords already accept or would accept cards for deposits, application fees, first/last month rent, and damage costs. These one-time charges carry less fee sensitivity than recurring rent and provide a low-risk entry point. As landlords build comfort with card payments in this context, the pathway to recurring monthly rent becomes shorter and more credible.</p>
+<div class="tag-row"><span class="rec-tag all">All markets</span><span class="rec-tag">Go-to-market</span></div>
+</div>
+
+<div class="rec-card">
+<h4>4. Run activation campaigns for the "hidden available" segment</h4>
+<p>42% of never-accepted landlords either have card features available but hadn't thought about it (19%) or don't know if they have them (23%). In the US specifically, 33% fall into the first category. A prompt-to-activate UX in banking apps and PM platforms — surfacing the feature, explaining fee handling, and offering one-click activation — could convert latent interest without new infrastructure or sales motions.</p>
+<div class="tag-row"><span class="rec-tag us">US priority</span><span class="rec-tag uae">UAE priority</span><span class="rec-tag">Activation</span></div>
+</div>
+
+<div class="rec-card">
+<h4>5. Lead messaging with operational benefits, not payment choice</h4>
+<p>The four decision-driving features are all practical: cost protection (38%), embedded access (29%), collection toolkit (28%), and auto bookkeeping (25%). "Tenant credit building" — despite 74% broad interest — is chosen as a priority by only 9%. UAE landlords most value "helps me get paid on time" (60%). Frame card acceptance as reducing late payments, automating records, and speeding settlement — not as adding a payment option.</p>
+<div class="tag-row"><span class="rec-tag all">All markets</span><span class="rec-tag">Messaging</span></div>
+</div>
+
+<div class="rec-card">
+<h4>6. Localize the go-to-market by country</h4>
+<p>The three markets have fundamentally different payment landscapes, trust hierarchies, and barrier profiles:</p>
+<p><strong>🇺🇸 US:</strong> Most fragmented payment mix. Dual-channel distribution (banks + PM companies). Highest chargeback concern among non-acceptors (42%). Strongest activation opportunity (33% have features available but unused). Lead with chargeback protection + embedded PM integration.</p>
+<p><strong>🇨🇦 Canada:</strong> Interac e-Transfer carries 35% of rent — any card proposition must explain what it offers beyond this working digital rail. Highest self-management rate (69%). Trust splits between banks (26%) and accountants (17%). Canada also has the most non-acceptors (33%) and the most who prefer to keep collection in their own hands (14%). QuickBooks and accounting-software integration may matter more than PM platforms here.</p>
+<p><strong>🇦🇪 UAE:</strong> Highest pain on every metric (bounced payments at 64%, chasing at 57%). Highest activation willingness (86%). Bank trust dominates (39%). "Helps me get paid on time" is the #1 adoption reason (60%). Despite this, 75% of non-acceptors say "current methods work fine" — the strongest inertia signal. This is the fastest conversion market if banks lead the offering, paired with messaging about settlement speed and payment certainty.</p>
+<div class="tag-row"><span class="rec-tag us">US</span><span class="rec-tag ca">Canada</span><span class="rec-tag uae">UAE</span><span class="rec-tag">Market strategy</span></div>
+</div>
+
+<h3 style="margin-top:2rem">Suggested next steps</h3>
+<div class="insight rec">
+<strong>Immediate (0–3 months):</strong> Quantify the activation opportunity — how many landlords on existing platforms have dormant card features, and what would a prompt-to-activate test look like in each market?<br><br>
+<strong>Near-term (3–6 months):</strong> Design and pilot an ancillary-charge card acceptance program (deposits + application fees) through 1–2 bank or PM platform partners per market, with tenant-pays fee model.<br><br>
+<strong>Medium-term (6–12 months):</strong> Expand to recurring rent for landlords who adopted via ancillary charges, leveraging the collection-toolkit and auto-bookkeeping features they now rely on.<br><br>
+<strong>Ongoing research:</strong> Run a parallel tenant-side survey to quantify willingness to pay card fees, preferred payment methods, and the impact of credit-building features on payment choice. The landlord survey reveals demand — the tenant survey quantifies how much they'd pay for it.
+</div>
+</section>
+
+</main>
+
+<footer>
+  Landlord Card Acceptance Survey · n = 240 · United States 100, Canada 70, UAE 70<br>
+  Pollfish panel · September 15–16, 2026 · Cross-tabulation analysis<br>
+  All figures are percentages unless noted · Heatmap intensity reflects relative magnitude within each table<br>
+  Caution: sub-group sizes (especially non-acceptors n=51, never-accepted n=43) limit statistical precision — treat patterns as directional
+</footer>
+
+<script>
+// Sticky nav active state
+const ss = document.querySelectorAll('section[id]');
+const nn = document.querySelectorAll('nav a');
+const obs = new IntersectionObserver(es => {
+  es.forEach(e => {
+    if (e.isIntersecting) {
+      nn.forEach(l => l.style.color = '');
+      nn.forEach(l => l.style.borderBottomColor = 'transparent');
+      const a = document.querySelector('nav a[href="#' + e.target.id + '"]');
+      if (a) { a.style.color = '#0EA5A0'; a.style.borderBottomColor = '#0EA5A0'; }
+    }
+  });
+}, { rootMargin: '-80px 0px -60% 0px' });
+ss.forEach(s => obs.observe(s));
+</script>
+
+</div><!-- end tab-report -->
+
+<!-- INTERACTIVE EXPLORER TAB -->
+<div id="tab-explorer" style="display:none">
+<div style="background:var(--surface);border-bottom:1px solid var(--border);padding:.6rem 2rem;display:flex;gap:.7rem;flex-wrap:wrap;align-items:center">
+  <label style="font-size:.68rem;font-weight:600;color:var(--muted);display:flex;align-items:center;gap:.25rem">Country <select id="fC" style="font-family:inherit;font-size:.73rem;padding:.25rem .4rem;border:1px solid var(--border);border-radius:4px"><option value="">All</option><option>United States</option><option>Canada</option><option>UAE</option></select></label>
+  <label style="font-size:.68rem;font-weight:600;color:var(--muted);display:flex;align-items:center;gap:.25rem">Portfolio <select id="fP" style="font-family:inherit;font-size:.73rem;padding:.25rem .4rem;border:1px solid var(--border);border-radius:4px"><option value="">All</option><option value="1">1</option><option value="2 - 4">2–4</option><option value="5 - 9">5–9</option><option value="10 - 19">10–19</option></select></label>
+  <label style="font-size:.68rem;font-weight:600;color:var(--muted);display:flex;align-items:center;gap:.25rem">Cards <select id="fK" style="font-family:inherit;font-size:.73rem;padding:.25rem .4rem;border:1px solid var(--border);border-radius:4px"><option value="">All</option><option value="yes">Accepts</option><option value="no">Never accepted</option></select></label>
+  <label style="font-size:.68rem;font-weight:600;color:var(--muted);display:flex;align-items:center;gap:.25rem">Mgmt <select id="fM" style="font-family:inherit;font-size:.73rem;padding:.25rem .4rem;border:1px solid var(--border);border-radius:4px"><option value="">All</option><option value="self">Self-managed</option><option value="pro">Professional</option></select></label>
+  <span id="cnt" style="font-size:.72rem;color:var(--teal);font-weight:700;margin-left:auto">Loading...</span>
+</div>
+<div class="container" style="max-width:900px;margin:0 auto;padding:1.5rem">
+  <div id="exStats" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.5rem;margin-bottom:1.5rem"></div>
+  <table class="ht" id="ex1"></table>
+  <table class="ht" id="ex2"></table>
+  <table class="ht" id="ex3"></table>
+  <table class="ht" id="ex4"></table>
+  <table class="ht" id="ex5"></table>
+  <table class="ht" id="ex6"></table>
+  <table class="ht" id="ex7"></table>
+  <table class="ht" id="ex8"></table>
+  <table class="ht" id="ex9"></table>
+  <table class="ht" id="ex10"></table>
+</div>
+</div>
+
+<!-- ASK CLAUDE TAB -->
+<div id="tab-claude" style="display:none">
+<div class="container" style="max-width:900px;margin:0 auto;padding:1.5rem">
+  <section>
+  <h2 style="font-size:1.25rem;font-weight:700;margin-bottom:.5rem">Ask Claude — Ad-hoc analysis</h2>
+  <p style="font-size:.87rem;color:var(--fgSoft,#334155);margin-bottom:1rem">Claude receives the full dataset (or filtered subset from the Explorer tab) and can compute cross-tabs, comparisons, and insights on demand.</p>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:1rem;margin-bottom:.75rem">
+    <label style="font-size:.75rem;font-weight:500;display:block;margin-bottom:.25rem">Anthropic API Key</label>
+    <input type="password" id="ak" placeholder="sk-ant-..." style="width:100%;font-family:inherit;font-size:.78rem;padding:.4rem .6rem;border:1px solid var(--border);border-radius:4px;margin-bottom:.3rem">
+    <div style="font-size:.66rem;color:var(--light,#94A3B8)">Stays in your browser. Direct browser → Anthropic API only. Never sent to our server.</div>
   </div>
-
-  <!-- PAYMENT MIX -->
-  <div class="pane" id="pane-payment">
-    <table class="ht" id="tblPayMix"></table>
-    <table class="ht" id="tblPayDecision"></table>
-    <table class="ht" id="tblTenantDemand"></table>
-  </div>
-
-  <!-- PAIN POINTS -->
-  <div class="pane" id="pane-pain">
-    <table class="ht" id="tblCollectionPain"></table>
-    <table class="ht" id="tblOpPain"></table>
-    <table class="ht" id="tblBarriers"></table>
-  </div>
-
-  <!-- ADOPTION -->
-  <div class="pane" id="pane-adoption">
-    <table class="ht" id="tblFeeTolerance"></table>
-    <table class="ht" id="tblActivation"></table>
-    <table class="ht" id="tblFeatures"></table>
-    <table class="ht" id="tblTrust"></table>
-    <table class="ht" id="tblAncillary"></table>
-  </div>
-
-  <!-- CLAUDE -->
-  <div class="pane" id="pane-claude">
-    <div class="claude-setup">
-      <label>Anthropic API Key (stays in your browser, never sent to our server)</label>
-      <input type="password" id="apiKey" placeholder="sk-ant-...">
-      <div style="font-size:.68rem;color:var(--light)">The key is used only for direct browser→Anthropic API calls. Filtered survey data is included as context so Claude can analyze it.</div>
+  <div style="border:1px solid var(--border);border-radius:6px;height:500px;display:flex;flex-direction:column;overflow:hidden">
+    <div id="cM" style="flex:1;overflow-y:auto;padding:.75rem;font-size:.82rem">
+      <div style="color:var(--light,#94A3B8);font-size:.72rem;font-style:italic">Try: "Compare fee sensitivity between self-managed US and UAE landlords" · "What's the profile of non-acceptors?" · "Which pain points correlate most with card adoption?"</div>
     </div>
-    <div class="chat-box">
-      <div class="chat-messages" id="chatMessages">
-        <div class="msg system">Ask questions about the filtered survey data. Claude receives the current filtered dataset as context. Try: "Compare fee sensitivity between US and UAE landlords" or "What's the profile of non-acceptors?"</div>
-      </div>
-      <div class="chat-input">
-        <input type="text" id="chatInput" placeholder="Ask about the survey data..." onkeydown="if(event.key==='Enter')sendChat()">
-        <button onclick="sendChat()" id="chatSend">Send</button>
-      </div>
+    <div style="display:flex;border-top:1px solid var(--border);padding:.45rem">
+      <input type="text" id="cI" placeholder="Ask about the survey data..." style="flex:1;border:1px solid var(--border);border-radius:4px;padding:.4rem .6rem;font-family:inherit;font-size:.8rem" onkeydown="if(event.key==='Enter')sq()">
+      <button onclick="sq()" id="cB" style="margin-left:.35rem;padding:.4rem .75rem;background:var(--teal);color:#fff;border:none;border-radius:4px;font-family:inherit;font-size:.78rem;font-weight:600;cursor:pointer">Send</button>
     </div>
   </div>
+  </section>
+</div>
 </div>
 
 <script>
-const SUPA_URL = 'https://bydkyihvfippsvxgyrvx.supabase.co';
-const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ5ZGt5aWh2ZmlwcHN2eGd5cnZ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3MjY3MDUsImV4cCI6MjEwNTMwMjcwNX0.WJyeXi26hqbwst5bv11Dm_r3u0AVD_qdN5iIMOVRcFE';
-
-let ALL_DATA = [];
-let filtered = [];
-
-// ── DATA LOADING ──
-async function loadData() {
-  try {
-    const r = await fetch(`${SUPA_URL}/rest/v1/landlord_survey?select=*&order=row_id`, {
-      headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}` }
-    });
-    ALL_DATA = await r.json();
-    document.getElementById('loadingMsg').style.display = 'none';
-    applyFilters();
-  } catch (e) {
-    document.getElementById('loadingMsg').textContent = 'Error loading data: ' + e.message;
-  }
-}
-
-// ── FILTERS ──
-function applyFilters() {
-  const country = document.getElementById('fCountry').value;
-  const portfolio = document.getElementById('fPortfolio').value;
-  const card = document.getElementById('fCard').value;
-  const mgmt = document.getElementById('fMgmt').value;
-
-  filtered = ALL_DATA.filter(r => {
-    if (country && r.country !== country) return false;
-    if (portfolio && r.portfolio_size !== portfolio) return false;
-    if (card === 'accepts' && !r.card_status?.includes('accept')) return false;
-    if (card === 'never' && r.card_status !== 'I have never accepted cards') return false;
-    if (card === 'former' && !r.card_status?.includes('used to')) return false;
-    if (mgmt === 'self' && !r.management_type?.includes('myself')) return false;
-    if (mgmt === 'pro' && r.management_type?.includes('myself')) return false;
-    return true;
+// TAB SWITCHING
+function switchTopTab(tab, el) {
+  document.querySelectorAll('.top-tab').forEach(t => {
+    t.style.color = 'var(--muted, #64748B)';
+    t.style.borderBottomColor = 'transparent';
+    t.style.fontWeight = '500';
   });
-
-  document.getElementById('filterCount').textContent = `${filtered.length} of ${ALL_DATA.length} respondents`;
-  renderAll();
+  el.style.color = 'var(--teal, #0EA5A0)';
+  el.style.borderBottomColor = 'var(--teal, #0EA5A0)';
+  el.style.fontWeight = '600';
+  document.getElementById('tab-report').style.display = tab === 'report' ? 'block' : 'none';
+  document.getElementById('tab-explorer').style.display = tab === 'explorer' ? 'block' : 'none';
+  document.getElementById('tab-claude').style.display = tab === 'claude' ? 'block' : 'none';
 }
 
-document.querySelectorAll('.filters select').forEach(s => s.addEventListener('change', applyFilters));
+// SUPABASE
+const SU='https://bydkyihvfippsvxgyrvx.supabase.co',SK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ5ZGt5aWh2ZmlwcHN2eGd5cnZ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3MjY3MDUsImV4cCI6MjEwNTMwMjcwNX0.WJyeXi26hqbwst5bv11Dm_r3u0AVD_qdN5iIMOVRcFE';
+let D=[],F=[];
+async function init(){try{const r=await fetch(`${SU}/rest/v1/landlord_survey?select=*&order=row_id`,{headers:{apikey:SK,Authorization:'Bearer '+SK}});D=await r.json();run()}catch(e){document.getElementById('cnt').textContent='Error: '+e.message}}
+function $(id){return document.getElementById(id)}
+function run(){const c=$('fC').value,p=$('fP').value,k=$('fK').value,m=$('fM').value;F=D.filter(r=>{if(c&&r.country!==c)return!1;if(p&&r.portfolio_size!==p)return!1;if(k==='yes'&&!ac(r))return!1;if(k==='no'&&r.card_status!=='I have never accepted cards')return!1;if(m==='self'&&!r.management_type?.includes('myself'))return!1;if(m==='pro'&&r.management_type?.includes('myself'))return!1;return!0});$('cnt').textContent=F.length+' of '+D.length+' respondents';renderExplorer()}
+document.querySelectorAll('#tab-explorer select').forEach(s=>s.addEventListener('change',run));
+function ac(r){return r.card_status&&r.card_status.includes('accept')&&!r.card_status.includes('never')&&!r.card_status.includes('dont')}
+function pc(a,fn){return a.length?Math.round(a.filter(fn).length/a.length*1000)/10:0}
+function av(a,f){const v=a.map(r=>parseFloat(r[f])).filter(n=>!isNaN(n));return v.length?Math.round(v.reduce((s,x)=>s+x,0)/v.length*10)/10:null}
+function bC(d){return{'US':d.filter(r=>r.country==='United States'),'CA':d.filter(r=>r.country==='Canada'),'UAE':d.filter(r=>r.country==='UAE')}}
+function ht(v,mx,t='b'){if(v==null||isNaN(v))return'';const r=Math.min(v/mx,1);if(t==='r'){return`background:rgb(${254-50*r|0},${240-170*r|0},${(240-170*r)*.85|0});color:${r>.5?'#fff':'#991B1B'}`}if(t==='g'){return`background:rgb(${240-180*r|0},${180+75*(1-r)|0},${(240-180*r)*.7|0});color:${r>.5?'#fff':'#166534'}`}return`background:rgb(${(230-120*r)*.8|0},${230-120*r|0},${200+55*r|0});color:${r>.5?'#fff':'#0C4A6E'}`}
+function tb(id,cap,hd,rows,t='b',mx=null){const e=$(id);if(!e)return;let M=mx||0;if(!mx)rows.forEach(r=>r.slice(1).forEach(v=>{const n=parseFloat(v);if(!isNaN(n)&&n>M)M=n}));let h=`<caption>${cap} <span style="font-weight:400;font-size:.65rem;color:var(--light,#94A3B8)">(n=${F.length})</span></caption><tr>${hd.map(x=>'<th>'+x+'</th>').join('')}</tr>`;rows.forEach(r=>{const tt=r[0]?.toString().includes('Overall');h+='<tr'+(tt?' style="font-weight:700;border-top:2px solid var(--border)"':'')+'>';r.forEach((c,i)=>{if(i===0)h+='<td>'+c+'</td>';else{const n=parseFloat(c),s=!isNaN(n)&&n>0?ht(n,M,t):'',d=c==null||c===''?'\u2014':typeof c==='number'?c.toFixed(1)+'%':c;h+=`<td style="${s}">${d}</td>`}});h+='</tr>'});e.innerHTML=h}
 
-// ── TABS ──
-document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => {
-  document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
-  document.querySelectorAll('.pane').forEach(x => x.classList.remove('active'));
-  t.classList.add('active');
-  document.getElementById('pane-' + t.dataset.pane).classList.add('active');
-}));
+const MD=['A moderate problem','A major problem','A serious ongoing problem'],LK=['Somewhat likely','Very likely'];
 
-// ── HELPERS ──
-function pct(arr, fn) {
-  if (!arr.length) return 0;
-  return Math.round(arr.filter(fn).length / arr.length * 1000) / 10;
-}
-function avg(arr, field) {
-  const vals = arr.map(r => parseFloat(r[field])).filter(v => !isNaN(v) && v !== null);
-  if (!vals.length) return null;
-  return Math.round(vals.reduce((a, b) => a + b, 0) / vals.length * 10) / 10;
-}
-function byCountry(data) {
-  return {
-    'US': data.filter(r => r.country === 'United States'),
-    'Canada': data.filter(r => r.country === 'Canada'),
-    'UAE': data.filter(r => r.country === 'UAE'),
-  };
-}
-function heatBg(val, max, scheme = 'green') {
-  if (val === null || val === undefined || isNaN(val)) return '';
-  const ratio = Math.min(val / max, 1);
-  if (scheme === 'green') {
-    const g = Math.round(180 + 75 * (1 - ratio));
-    const r = Math.round(240 - 180 * ratio);
-    return `background:rgb(${r},${g},${Math.round(r * 0.7)});color:${ratio > 0.5 ? '#fff' : '#166534'}`;
-  }
-  if (scheme === 'red') {
-    const r2 = Math.round(254 - 50 * ratio);
-    const g = Math.round(240 - 170 * ratio);
-    return `background:rgb(${r2},${g},${Math.round(g * 0.85)});color:${ratio > 0.5 ? '#fff' : '#991B1B'}`;
-  }
-  const b = Math.round(200 + 55 * ratio);
-  const g = Math.round(230 - 120 * ratio);
-  return `background:rgb(${Math.round(g * 0.8)},${g},${b});color:${ratio > 0.5 ? '#fff' : '#0C4A6E'}`;
-}
-
-function makeTable(id, caption, headers, rows, scheme = 'blue', maxCol = null) {
-  const tbl = document.getElementById(id);
-  if (!tbl) return;
-  // Find max for heat
-  let mx = 0;
-  if (!maxCol) {
-    rows.forEach(r => r.slice(1).forEach(v => { const n = parseFloat(v); if (!isNaN(n) && n > mx) mx = n; }));
-  } else { mx = maxCol; }
-
-  let html = `<caption>${caption} <span style="font-weight:400;font-size:.65rem;color:var(--light)">(n=${filtered.length})</span></caption>`;
-  html += '<tr>' + headers.map((h, i) => `<th>${h}</th>`).join('') + '</tr>';
-  rows.forEach((r, ri) => {
-    const isTotal = r[0]?.includes('Overall') || r[0]?.includes('Total');
-    html += `<tr${isTotal ? ' class="total"' : ''}>`;
-    r.forEach((cell, ci) => {
-      if (ci === 0) { html += `<td>${cell}</td>`; }
-      else {
-        const n = parseFloat(cell);
-        const style = !isNaN(n) && n > 0 ? heatBg(n, mx, scheme) : '';
-        const display = cell === null || cell === '' || cell === 'NaN' ? '—' : (typeof cell === 'number' ? cell.toFixed(1) + '%' : cell);
-        html += `<td style="${style}">${display}</td>`;
-      }
-    });
-    html += '</tr>';
-  });
-  tbl.innerHTML = html;
-}
-
-function acceptsCards(r) {
-  return r.card_status && r.card_status.includes('accept') && !r.card_status.includes('never') && !r.card_status.includes('dont') && !r.card_status.includes("don't");
-}
-
-// ── RENDER ALL ──
-function renderAll() {
-  renderOverview();
-  renderPayment();
-  renderPain();
-  renderAdoption();
-}
-
-// ── OVERVIEW ──
-function renderOverview() {
-  const d = filtered;
-  const accCards = pct(d, acceptsCards);
-  const selfMgd = pct(d, r => r.management_type?.includes('myself'));
-  const small = pct(d, r => r.portfolio_size === '1' || r.portfolio_size === '2 - 4');
-  const avgDebit = avg(d, 'pct_debit');
-  const avgCredit = avg(d, 'pct_credit');
-
-  document.getElementById('overviewStats').innerHTML = `
-    <div class="st"><div class="n">${d.length}</div><div class="l">respondents (filtered)</div></div>
-    <div class="st"><div class="n tl">${accCards}%</div><div class="l">accept cards</div></div>
-    <div class="st"><div class="n">${selfMgd}%</div><div class="l">self-managed</div></div>
-    <div class="st"><div class="n">${small}%</div><div class="l">fewer than 5 units</div></div>
-    <div class="st"><div class="n or">${avgDebit ?? '—'}%</div><div class="l">avg rent via debit</div></div>
-    <div class="st"><div class="n or">${avgCredit ?? '—'}%</div><div class="l">avg rent via credit</div></div>
-  `;
-
-  // Card status by country
-  const bc = byCountry(d);
-  const statuses = ['I currently accept both credit and debit cards','I currently accept debit cards only','I currently accept credit cards only',"I dont accept cards now, but I used to",'I have never accepted cards'];
-  const shortStatus = ['Both cards','Debit only','Credit only','Former','Never accepted'];
-  const rows = Object.entries(bc).filter(([k,v]) => v.length > 0).map(([country, sub]) => {
-    return [country + ` (${sub.length})`, ...statuses.map(s => pct(sub, r => r.card_status === s))];
-  });
-  if (rows.length > 1) {
-    rows.push(['Overall (' + d.length + ')', ...statuses.map(s => pct(d, r => r.card_status === s))]);
-  }
-  makeTable('tblCardByCountry', 'Card acceptance status × Country', ['', ...shortStatus], rows, 'green', 70);
-
-  // Card by portfolio
-  const sizes = ['1','2 - 4','5 - 9','10 - 19','20 - 49'].filter(s => d.some(r => r.portfolio_size === s));
-  const pRows = sizes.map(s => {
-    const sub = d.filter(r => r.portfolio_size === s);
-    return [s + ` (${sub.length})`, pct(sub, acceptsCards), pct(sub, r => !acceptsCards(r))];
-  });
-  makeTable('tblCardByPortfolio', 'Card acceptance × Portfolio size', ['','Accepts','Does not'], pRows, 'green', 100);
-
-  // Card usage among acceptors
-  const acc = d.filter(acceptsCards);
-  if (acc.length > 0) {
-    const usages = ['Under 25%','25 - 50%','50 - 75%','Most or all','None currently'];
-    const uRows = Object.entries(byCountry(acc)).filter(([k,v]) => v.length > 0).map(([c, sub]) => {
-      return [c, ...usages.map(u => pct(sub, r => r.card_usage_share === u))];
-    });
-    makeTable('tblCardUsage', 'Tenant card usage share (among acceptors)', ['', ...usages], uRows, 'blue', 60);
-  }
-}
-
-// ── PAYMENT MIX ──
-function renderPayment() {
-  const d = filtered;
-  const bc = byCountry(d);
-  const methods = [
-    ['Cash','pct_cash'],['Check','pct_check'],['Bank/ACH','pct_bank_ach'],
-    ['Payment apps','pct_payment_app'],['Interac','pct_interac'],['E-wallets','pct_ewallet'],
-    ['Debit card','pct_debit'],['Credit card','pct_credit'],['Auto debit','pct_auto_debit'],
-    ['Gov. subsidies','pct_gov_subsidy']
-  ];
-  const countries = Object.entries(bc).filter(([k,v]) => v.length > 0);
-  const rows = methods.map(([label, field]) => {
-    return [label, ...countries.map(([c, sub]) => avg(sub, field)), avg(d, field)];
-  });
-  makeTable('tblPayMix', 'Average % of rent by payment method × Country',
-    ['', ...countries.map(([c]) => c), 'Overall'], rows, 'blue', 40);
-
-  // Payment decision
-  const decisions = [...new Set(d.map(r => r.payment_decision).filter(Boolean))];
-  const dRows = decisions.map(dec => {
-    return [dec.substring(0, 50), ...countries.map(([c, sub]) => pct(sub, r => r.payment_decision === dec)), pct(d, r => r.payment_decision === dec)];
-  }).sort((a, b) => parseFloat(b[b.length-1]) - parseFloat(a[a.length-1]));
-  makeTable('tblPayDecision', 'How payment methods were chosen × Country',
-    ['', ...countries.map(([c]) => c), 'Overall'], dRows, 'blue', 40);
-
-  // Tenant demand
-  const demandFields = [['Debit card','demand_debit'],['Credit card','demand_credit'],['Payment app','demand_app'],['No request','demand_none']];
-  const tdRows = demandFields.map(([label, field]) => {
-    return [label, ...countries.map(([c, sub]) => pct(sub, r => r[field] === true || r[field] === 'true')),
-      pct(d, r => r[field] === true || r[field] === 'true')];
-  });
-  makeTable('tblTenantDemand', 'Tenant requests for unsupported methods (last 12 mo) × Country',
-    ['', ...countries.map(([c]) => c), 'Overall'], tdRows, 'green', 50);
-}
-
-// ── PAIN POINTS ──
-function renderPain() {
-  const d = filtered;
-  const bc = byCountry(d);
-  const countries = Object.entries(bc).filter(([k,v]) => v.length > 0);
-  const moderate = ['A moderate problem','A major problem','A serious ongoing problem'];
-  const isMod = r => f => moderate.includes(r[f]);
-
-  const painFields = [['Late payments','pain_late'],['Chasing tenants','pain_chasing'],['Partial payments','pain_partial'],
-    ['Bounced payments','pain_bounced'],['Disputes','pain_disputes'],['Payment visibility','pain_visibility'],['Transfer limits','pain_transfer_limits']];
-
-  const pRows = painFields.map(([label, field]) => {
-    return [label, ...countries.map(([c, sub]) => pct(sub, r => moderate.includes(r[field]))),
-      pct(d, r => moderate.includes(r[field]))];
-  });
-  makeTable('tblCollectionPain', 'Collection pain (% moderate+) × Country',
-    ['', ...countries.map(([c]) => c), 'Overall'], pRows, 'red', 70);
-
-  const opFields = [['Repair/damage costs','opain_repair_costs'],['Collection fees','opain_collection_fees'],
-    ['Manual tracking','opain_manual_tracking'],['Vacancy costs','opain_vacancy'],
-    ['First month + deposit','opain_first_deposit'],['Return deposits','opain_return_deposit'],['Cash safety','opain_cash_safety']];
-
-  const oRows = opFields.map(([label, field]) => {
-    return [label, ...countries.map(([c, sub]) => pct(sub, r => moderate.includes(r[field]))),
-      pct(d, r => moderate.includes(r[field]))];
-  });
-  makeTable('tblOpPain', 'Operational pain (% moderate+) × Country',
-    ['', ...countries.map(([c]) => c), 'Overall'], oRows, 'red', 65);
-
-  // Barriers (only for never-accepted)
-  const never = d.filter(r => r.card_status === 'I have never accepted cards');
-  if (never.length > 0) {
-    const bFields = [['Methods work fine','barrier_methods_fine'],['Absorb cost','barrier_absorb_cost'],['No credit','barrier_no_credit'],
-      ['Fees high','barrier_fees_high'],['Chargeback risk','barrier_chargeback'],['No demand','barrier_no_demand'],
-      ['Setup complicated','barrier_setup_complicated'],['No support','barrier_no_support'],['Tax concerns','barrier_tax_concerns']];
-    const bCountries = Object.entries(byCountry(never)).filter(([k,v]) => v.length > 0);
-    const bRows = bFields.map(([label, field]) => {
-      return [label, ...bCountries.map(([c, sub]) => pct(sub, r => r[field] === true || r[field] === 'true')),
-        pct(never, r => r[field] === true || r[field] === 'true')];
-    }).sort((a, b) => parseFloat(b[b.length-1]) - parseFloat(a[a.length-1]));
-    makeTable('tblBarriers', `Barriers to card acceptance (never-accepted, n=${never.length}) × Country`,
-      ['', ...bCountries.map(([c,s]) => c + ` (${s.length})`), `Overall (${never.length})`], bRows, 'red', 80);
-  } else {
-    document.getElementById('tblBarriers').innerHTML = '<caption>Barriers — no never-accepted landlords in current filter</caption>';
-  }
-}
-
-// ── ADOPTION ──
-function renderAdoption() {
-  const d = filtered;
-  const bc = byCountry(d);
-  const countries = Object.entries(bc).filter(([k,v]) => v.length > 0);
-
-  // Fee tolerance
-  const fees = ['Nothing — I would only do it if the tenant paid the fee','Up to $5 (0.5%)','Up to $10 (1%)','Up to $20 (2%)','Up to $30 (3%)','Up to $50 (5%)','More than $50, if the benefits offered were right'];
-  const shortFees = ['$0 (tenant pays)','≤$5','≤$10','≤$20','≤$30','≤$50','>$50'];
-  // Cumulative
-  const cumRows = [];
-  shortFees.forEach((label, i) => {
-    const matchFees = fees.slice(0, i + 1);
-    const row = [label, ...countries.map(([c, sub]) => pct(sub, r => matchFees.includes(r.fee_tolerance))),
-      pct(d, r => matchFees.includes(r.fee_tolerance))];
-    cumRows.push(row);
-  });
-  makeTable('tblFeeTolerance', 'Cumulative fee tolerance on $1,000 rent × Country',
-    ['Max fee', ...countries.map(([c]) => c), 'Overall'], cumRows, 'blue', 100);
-
-  // Activation likelihood
-  const actVals = ['Very likely','Somewhat likely','Neither likely nor unlikely','Somewhat unlikely','Very unlikely'];
-  const actRows = actVals.map(v => {
-    return [v, ...countries.map(([c, sub]) => pct(sub, r => r.activation_likelihood === v)),
-      pct(d, r => r.activation_likelihood === v)];
-  });
-  makeTable('tblActivation', 'Likelihood to activate if bank/software adds at no cost × Country',
-    ['', ...countries.map(([c]) => c), 'Overall'], actRows, 'green', 50);
-
-  // Features: interest vs priority
-  const feats = [
-    ['No cost to landlord','feat_no_cost','prio_no_cost'],
-    ['Built into existing tool','feat_built_in','prio_built_in'],
-    ['Rent-collection toolkit','feat_toolkit','prio_toolkit'],
-    ['Auto bookkeeping','feat_bookkeeping','prio_bookkeeping'],
-    ['Accept from phone','feat_phone','prio_phone'],
-    ['Same/next-day funding','feat_fast_funding','prio_fast_funding'],
-    ['Tenant credit building','feat_credit_building','prio_credit_building'],
-    ['Maintenance discounts','feat_discounts','prio_discounts'],
-    ['Insurance/protection','feat_insurance','prio_insurance'],
-    ['Short-term financing','feat_financing','prio_financing'],
-  ];
-  const likely = ['Somewhat likely','Very likely'];
-  const fRows = feats.map(([label, fField, pField]) => {
-    const interest = pct(d, r => likely.includes(r[fField]));
-    const priority = pct(d, r => r[pField] === true || r[pField] === 'true');
-    const gap = Math.round((interest - priority) * 10) / 10;
-    return [label, interest + '%', priority + '%', gap + 'pp'];
-  });
-  makeTable('tblFeatures', 'Feature interest (% likely) vs decision priority (% top-2)',
-    ['Feature','Interest','Priority','Gap'], fRows, 'green', 80);
-
+function renderExplorer(){
+  const d=F,bc=bC(d),cs=Object.entries(bc).filter(([,v])=>v.length);
+  $('exStats').innerHTML=`<div class="st"><div class="n" style="font-size:1.7rem;font-weight:800">${d.length}</div><div class="l">respondents</div></div><div class="st"><div class="n tl" style="font-size:1.7rem;font-weight:800">${pc(d,ac)}%</div><div class="l">accept cards</div></div><div class="st"><div class="n or" style="font-size:1.7rem;font-weight:800">${av(d,'pct_debit')||'—'}%/${av(d,'pct_credit')||'—'}%</div><div class="l">avg debit/credit</div></div><div class="st"><div class="n" style="font-size:1.7rem;font-weight:800">${pc(d,r=>r.management_type?.includes('myself'))}%</div><div class="l">self-managed</div></div>`;
+  // Card status
+  const st=['I currently accept both credit and debit cards','I currently accept debit cards only','I currently accept credit cards only',"I dont accept cards now, but I used to",'I have never accepted cards'],sn=['Both','Debit only','Credit only','Former','Never'];
+  const rows=cs.map(([c,sub])=>[c+' ('+sub.length+')',...st.map(s=>pc(sub,r=>r.card_status===s))]);if(cs.length>1)rows.push(['Overall ('+d.length+')',...st.map(s=>pc(d,r=>r.card_status===s))]);
+  tb('ex1','Card acceptance × Country',['', ...sn],rows,'g',70);
+  // Payment mix
+  const ms=[['Cash','pct_cash'],['Check','pct_check'],['Bank/ACH','pct_bank_ach'],['Pay apps','pct_payment_app'],['Interac','pct_interac'],['E-wallets','pct_ewallet'],['Debit','pct_debit'],['Credit','pct_credit']];
+  tb('ex2','Avg % of rent by method × Country',['', ...cs.map(([c])=>c),'Overall'],ms.map(([l,f])=>[l,...cs.map(([,sub])=>av(sub,f)),av(d,f)]),'b',40);
+  // Collection pain
+  const cp=[['Late payments','pain_late'],['Chasing','pain_chasing'],['Transfer limits','pain_transfer_limits'],['Partial','pain_partial'],['Bounced','pain_bounced'],['Disputes','pain_disputes'],['Visibility','pain_visibility']];
+  tb('ex3','Collection pain (% moderate+) × Country',['', ...cs.map(([c])=>c),'Overall'],cp.map(([l,f])=>[l,...cs.map(([,sub])=>pc(sub,r=>MD.includes(r[f]))),pc(d,r=>MD.includes(r[f]))]),'r',70);
+  // Op pain
+  const op=[['Repair costs','opain_repair_costs'],['Collection fees','opain_collection_fees'],['Manual tracking','opain_manual_tracking'],['Vacancy','opain_vacancy']];
+  tb('ex4','Operational pain (% moderate+) × Country',['', ...cs.map(([c])=>c),'Overall'],op.map(([l,f])=>[l,...cs.map(([,sub])=>pc(sub,r=>MD.includes(r[f]))),pc(d,r=>MD.includes(r[f]))]),'r',65);
+  // Pain by card status
+  const aa=d.filter(ac),na=d.filter(r=>!ac(r));
+  if(aa.length&&na.length){tb('ex5','Pain × Card status',['','Acceptors ('+aa.length+')','Non-acc ('+na.length+')','Δ'],cp.map(([l,f])=>{const a=pc(aa,r=>MD.includes(r[f])),b=pc(na,r=>MD.includes(r[f]));return[l,a,b,(a-b>0?'+':'')+Math.round((a-b)*10)/10+'pp']}),'r',65)}
+  // Fee tolerance cumulative
+  const fees=['Nothing — I would only do it if the tenant paid the fee','Up to $5 (0.5%)','Up to $10 (1%)','Up to $20 (2%)','Up to $30 (3%)','Up to $50 (5%)'],fs=['$0','≤$5','≤$10','≤$20','≤$30','≤$50'];
+  tb('ex6','Cumulative fee tolerance × Country',['', ...cs.map(([c])=>c),'Overall'],fs.map((l,i)=>{const mf=fees.slice(0,i+1);return[l,...cs.map(([,sub])=>pc(sub,r=>mf.includes(r.fee_tolerance))),pc(d,r=>mf.includes(r.fee_tolerance))]}),'b',100);
+  // Features
+  const ft=[['No cost','feat_no_cost','prio_no_cost'],['Built-in','feat_built_in','prio_built_in'],['Toolkit','feat_toolkit','prio_toolkit'],['Bookkeeping','feat_bookkeeping','prio_bookkeeping'],['Fast funding','feat_fast_funding','prio_fast_funding'],['Credit building','feat_credit_building','prio_credit_building']];
+  tb('ex7','Feature interest vs priority',['','Interest','Priority','Gap'],ft.map(([l,ff,pf])=>{const i=pc(d,r=>LK.includes(r[ff])),p=pc(d,r=>r[pf]===true||r[pf]==='true');return[l,i+'%',p+'%',Math.round((i-p)*10)/10+'pp']}),'g',80);
   // Trust
-  const trusts = [...new Set(d.map(r => r.most_trusted_provider).filter(Boolean))];
-  const tRows = trusts.map(t => {
-    const short = t.replace('My ','').replace('None of these — I\'d keep rent collection in my own hands','Keep it myself')
-      .replace('A dedicated rent-collection app or software company','Rent app').substring(0, 35);
-    return [short, ...countries.map(([c, sub]) => pct(sub, r => r.most_trusted_provider === t)),
-      pct(d, r => r.most_trusted_provider === t)];
-  }).sort((a, b) => parseFloat(b[b.length-1]) - parseFloat(a[a.length-1]));
-  makeTable('tblTrust', 'Most trusted provider for rent collection × Country',
-    ['', ...countries.map(([c]) => c), 'Overall'], tRows, 'green', 40);
-
-  // Ancillary charges
-  const ancFields = [['Application fees','anc_application'],['Security deposit (full)','anc_deposit_full'],
-    ['Security deposit (hold)','anc_deposit_hold'],['First/last month','anc_first_last'],
-    ['Add-ons','anc_addons'],['Late fees','anc_late_fees'],['Damage costs','anc_damage']];
-  const ancRows = ancFields.map(([label, field]) => {
-    const already = pct(d, r => r[field] === 'I already accept cards for this');
-    const willing = pct(d, r => r[field]?.includes('willing'));
-    const maybe = pct(d, r => r[field]?.includes('might consider'));
-    const no = pct(d, r => r[field] === 'I would not accept');
-    return [label, already + '%', willing + '%', maybe + '%', no + '%', (100 - no).toFixed(1) + '%'];
-  });
-  makeTable('tblAncillary', 'Willingness to accept cards for ancillary charges',
-    ['','Already accept','Willing','Might consider','Would not','Total positive'], ancRows, 'green', 100);
+  const tr=[...new Set(d.map(r=>r.most_trusted_provider).filter(Boolean))];
+  tb('ex8','Most trusted provider × Country',['', ...cs.map(([c])=>c),'Overall'],tr.map(t=>{const s=t.replace('My ','').replace("None of these — I'd keep rent collection in my own hands",'Keep myself').replace('A dedicated rent-collection app or software company','Rent app').substring(0,28);return[s,...cs.map(([,sub])=>pc(sub,r=>r.most_trusted_provider===t)),pc(d,r=>r.most_trusted_provider===t)]}).sort((a,b)=>parseFloat(b[b.length-1])-parseFloat(a[a.length-1])),'g',40);
+  // Ancillary
+  const af=[['App fees','anc_application'],['Deposit','anc_deposit_full'],['First/last','anc_first_last'],['Damage','anc_damage'],['Late fees','anc_late_fees']];
+  tb('ex9','Cards for ancillary charges',['','Already','Willing','Maybe','No'],af.map(([l,f])=>{return[l,pc(d,r=>r[f]==='I already accept cards for this')+'%',pc(d,r=>r[f]?.includes('willing'))+'%',pc(d,r=>r[f]?.includes('might'))+'%',pc(d,r=>r[f]==='I would not accept')+'%']}),'g',50);
+  // Barriers
+  const nv=d.filter(r=>r.card_status==='I have never accepted cards');
+  if(nv.length){const bf=[['Methods fine','barrier_methods_fine'],['Absorb cost','barrier_absorb_cost'],['No credit','barrier_no_credit'],['Fees high','barrier_fees_high'],['Chargeback','barrier_chargeback'],['No demand','barrier_no_demand']];
+  tb('ex10','Barriers (never-accepted, n='+nv.length+')',['','%'],bf.map(([l,f])=>[l,pc(nv,r=>r[f]===true||r[f]==='true')]).sort((a,b)=>parseFloat(b[1])-parseFloat(a[1])),'r',50)}else{$('ex10').innerHTML=''}
 }
 
-// ── CLAUDE CHAT ──
-const chatHistory = [];
+// CLAUDE
+const CH=[];
+async function sq(){const k=$('ak').value.trim(),inp=$('cI'),msg=inp.value.trim();if(!k||!msg)return;inp.value='';const m=$('cM');
+m.innerHTML+='<div style="color:var(--teal);font-weight:600;margin-bottom:.65rem">'+es(msg)+'</div><div id="thk" style="color:var(--light,#94A3B8);font-size:.72rem;font-style:italic">Analyzing...</div>';
+m.scrollTop=m.scrollHeight;$('cB').disabled=true;CH.push({role:'user',content:msg});
+try{const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':k,'anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:2500,
+system:'You are a survey data analyst. Landlord survey on card acceptance for rent (n='+F.length+' filtered of '+D.length+' total).\n\nDATA:\nCountries: '+[...new Set(F.map(r=>r.country))].map(c=>c+'='+F.filter(r=>r.country===c).length).join(', ')+'\nCard accepts: '+F.filter(ac).length+', never: '+F.filter(r=>r.card_status==="I have never accepted cards").length+'\nPay mix avg: cash='+av(F,"pct_cash")+'%, check='+av(F,"pct_check")+'%, bank='+av(F,"pct_bank_ach")+'%, debit='+av(F,"pct_debit")+'%, credit='+av(F,"pct_credit")+'%\nPain mod+: late='+pc(F,r=>MD.includes(r.pain_late))+'%, chasing='+pc(F,r=>MD.includes(r.pain_chasing))+'%, bounced='+pc(F,r=>MD.includes(r.pain_bounced))+'%\nActivation likely: '+pc(F,r=>LK.includes(r.activation_likelihood))+'%\n\nRAW (25 rows):\n'+JSON.stringify(F.slice(0,25),null,0).substring(0,3500)+'\n\nAnswer concisely with numbers. Use | tables when helpful.',
+messages:CH})});const data=await r.json(),reply=data.content?.[0]?.text||data.error?.message||'No response';CH.push({role:'assistant',content:reply});$('thk')?.remove();
+m.innerHTML+='<div style="margin-bottom:.65rem;line-height:1.55">'+es(reply).replace(/\n/g,'<br>').replace(/```([\s\S]*?)```/g,'<pre style="background:var(--surface);padding:.5rem;border-radius:4px;font-size:.72rem;white-space:pre-wrap;margin:.3rem 0">$1</pre>')+'</div>'}
+catch(e){$('thk')?.remove();m.innerHTML+='<div style="color:red;font-size:.72rem">Error: '+e.message+'</div>'}
+$('cB').disabled=false;m.scrollTop=m.scrollHeight}
+function es(s){return s.replace(/</g,'&lt;').replace(/>/g,'&gt;')}
 
-async function sendChat() {
-  const key = document.getElementById('apiKey').value.trim();
-  const input = document.getElementById('chatInput');
-  const msg = input.value.trim();
-  if (!key || !msg) return;
-
-  input.value = '';
-  const messages = document.getElementById('chatMessages');
-  messages.innerHTML += `<div class="msg user">${msg}</div>`;
-  messages.innerHTML += `<div class="msg system">Thinking...</div>`;
-  messages.scrollTop = messages.scrollHeight;
-  document.getElementById('chatSend').disabled = true;
-
-  // Build data summary for context
-  const summary = buildDataSummary();
-
-  chatHistory.push({ role: 'user', content: msg });
-
-  try {
-    const r = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': key, 'anthropic-dangerous-direct-browser-access': 'true' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 2000,
-        system: `You are a survey data analyst. You have access to a filtered subset of a landlord survey (n=${filtered.length} of ${ALL_DATA.length} total).
-
-Here is a statistical summary of the currently filtered data:
-${summary}
-
-Answer questions about this data concisely. Use specific numbers. When comparing groups, show the percentages. Format tables with | pipes if helpful.`,
-        messages: chatHistory
-      })
-    });
-    const data = await r.json();
-    const reply = data.content?.[0]?.text || data.error?.message || 'No response';
-    chatHistory.push({ role: 'assistant', content: reply });
-
-    // Remove "Thinking..." and add response
-    const msgs = messages.querySelectorAll('.msg');
-    msgs[msgs.length - 1].remove();
-    const formatted = reply.replace(/</g, '&lt;').replace(/\n/g, '<br>').replace(/```([\s\S]*?)```/g, '<pre>$1</pre>');
-    messages.innerHTML += `<div class="msg assistant">${formatted}</div>`;
-  } catch (e) {
-    const msgs = messages.querySelectorAll('.msg');
-    msgs[msgs.length - 1].remove();
-    messages.innerHTML += `<div class="msg system">Error: ${e.message}</div>`;
-  }
-
-  document.getElementById('chatSend').disabled = false;
-  messages.scrollTop = messages.scrollHeight;
-}
-
-function buildDataSummary() {
-  const d = filtered;
-  const countries = {};
-  d.forEach(r => { countries[r.country] = (countries[r.country] || 0) + 1; });
-
-  const moderate = ['A moderate problem','A major problem','A serious ongoing problem'];
-  const likely = ['Somewhat likely','Very likely'];
-
-  let s = `FILTERED SAMPLE: ${d.length} respondents\n`;
-  s += `Countries: ${Object.entries(countries).map(([k,v]) => k + '=' + v).join(', ')}\n\n`;
-
-  s += `CARD STATUS:\n`;
-  const statuses = [...new Set(d.map(r => r.card_status))];
-  statuses.forEach(st => { s += `  ${st}: ${pct(d, r => r.card_status === st)}%\n`; });
-
-  s += `\nPAYMENT MIX (avg %):\n`;
-  ['pct_cash','pct_check','pct_bank_ach','pct_debit','pct_credit','pct_auto_debit'].forEach(f => {
-    s += `  ${f}: ${avg(d, f)}%\n`;
-  });
-
-  s += `\nCOLLECTION PAIN (% moderate+):\n`;
-  ['pain_late','pain_chasing','pain_bounced','pain_disputes','pain_transfer_limits'].forEach(f => {
-    s += `  ${f}: ${pct(d, r => moderate.includes(r[f]))}%\n`;
-  });
-
-  s += `\nFEE TOLERANCE:\n`;
-  const fees = ['Nothing — I would only do it if the tenant paid the fee','Up to $5 (0.5%)','Up to $10 (1%)','Up to $20 (2%)','Up to $30 (3%)'];
-  fees.forEach(f => { s += `  ${f}: ${pct(d, r => r.fee_tolerance === f)}%\n`; });
-
-  s += `\nACTIVATION LIKELIHOOD (if bank/software adds at no cost):\n`;
-  s += `  Very+Somewhat likely: ${pct(d, r => likely.includes(r.activation_likelihood))}%\n`;
-
-  s += `\nTOP FEATURE PRIORITIES (% top-2 pick):\n`;
-  ['prio_no_cost','prio_built_in','prio_toolkit','prio_bookkeeping','prio_fast_funding'].forEach(f => {
-    s += `  ${f}: ${pct(d, r => r[f] === true || r[f] === 'true')}%\n`;
-  });
-
-  s += `\nMOST TRUSTED PROVIDER:\n`;
-  const trusts = {};
-  d.forEach(r => { if (r.most_trusted_provider) trusts[r.most_trusted_provider] = (trusts[r.most_trusted_provider] || 0) + 1; });
-  Object.entries(trusts).sort((a,b) => b[1]-a[1]).slice(0, 5).forEach(([k,v]) => {
-    s += `  ${k}: ${(v/d.length*100).toFixed(1)}%\n`;
-  });
-
-  // Add raw data for first 30 rows as JSON for detailed queries
-  s += `\nRAW DATA (first 30 rows of filtered set):\n`;
-  s += JSON.stringify(d.slice(0, 30), null, 0).substring(0, 4000);
-
-  return s;
-}
-
-// ── INIT ──
-loadData();
+init();
 </script>
-
 </body>
 </html>
